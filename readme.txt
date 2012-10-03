@@ -1,7 +1,7 @@
 === Ultimate Metabox Tabs ===
 Contributors: SilbinaryWolf
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=jake_1012%40hotmail%2ecom&lc=AU&item_name=SilbinaryWolf&currency_code=AUD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted
-Tags: silbinary, wolf, doogie, for, ever, jake, bentvelzen, tabs, ultimate, metabox, sorting, clean, fast, easy, metabox tabs, admin
+Tags: tabs, ultimate, metabox, tabs, sorting, clean, fast, easy, metabox tabs, admin, advanced, custom, fields, addons, easy, div, posts, pages, options, metaboxes
 Requires at least: 3.0
 Tested up to: 3.4.2
 Stable tag: 3.4.2
