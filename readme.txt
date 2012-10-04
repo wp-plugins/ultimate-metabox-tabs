@@ -45,10 +45,12 @@ They're also inserted at server-time, meaning no ugly javascript forcing the met
 * Windows Internet Explorer 8
 
 = Bug Submission =
-Contact me at jake_1012@hotmail.com
+Contact me at doogie1012@gmail.com
 
 == Frequently Asked Questions ==
-None yet. First public release.
+
+Q. The metabox tabs are buggy with certain plugins, either not appearing or having weird behaviour. Why?
+A. As of now, on post types at least, Metabox tabs inserts itself just before the content, and pushes itself up via the CSS, this means things that attempt to hide the content may interfere. If you're a developer who knows a better filter/hook location, please contact me.
 
 == Upgrade Notice ==
 None yet. First public release.
