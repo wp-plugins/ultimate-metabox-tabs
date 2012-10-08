@@ -1,0 +1,134 @@
+
+.title-wrapper p, .title-wrapper h2 {
+	float:left;
+}
+
+.title-wrapper p {
+	line-height:30px;
+}
+
+#metabox-editor #post-body {
+	display:block;
+	margin-top:20px;
+}
+
+#metabox-editor input {
+	border-color: #CCC;
+	font-family: sans-serif;
+	font-size: 12px;
+	line-height: 1.4em;
+	width:25%;
+}
+
+#metabox-editor label {
+	color: #333;
+	font-size: 13px;
+	font-weight: bold;
+	padding: 0;
+	margin: 0 0 3px;
+	display: block;
+	vertical-align: text-bottom;
+	cursor:default;
+}
+
+.post-body-content {
+	float:left;
+	width:100%;
+}
+
+#post-body {
+	margin-right:300px;
+}
+
+#postbox-save {
+	float:right;
+	width:280px;
+	margin-right:-300px;
+}
+
+#metabox-editor .submit-button {
+	display: block;
+	border-radius: 4px;
+	background: #2C8BBE;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#2c8bbe', endColorstr='#246f99');
+	color: white;
+	font-weight: normal;
+	text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+	font-size: 13px;
+	line-height: 1em;
+	padding: 6px 11px;
+	border: 0 none;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+	cursor: pointer;
+	position: relative;
+	text-align: center;
+	text-decoration: none;
+
+}
+
+#metabox-editor .submit-button:hover {
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+background: #3B97C9;
+filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#3b97c9', endColorstr='#246f99');
+}
+
+#metabox-editor .hndle {
+	font-size: 15px;
+	font-weight: normal;
+	line-height: 1;
+	font-size: 15px;
+	font-weight: normal;
+	padding: 7px 10px;
+	margin: 0;
+	line-height: 1;
+}
+
+#metabox-editor .div {
+	cursor:move;
+	background-color:whiteSmoke;
+}
+
+#metabox-editor .div.ui-sortable-helper, #metabox-editor .ui-state-highlight {
+	border-left:1px solid #DFDFDF;
+	background-color:whiteSmoke;
+}
+
+#metabox-editor .group_name input {
+	font-size:16px;
+}
+
+.extension-list {
+	margin-top:10px;
+}
+
+.extension-list .title-wrapper {
+	height:50px;
+}
+
+.extension-list p {
+	margin:0;
+}
+
+.extension-list a {
+	display:block;
+	padding-top:10px;
+	padding-bottom:10px;
+}
+
+.extension_description p {
+
+}
+
+ul.meta-group {
+	margin:0;
+}
+
+.ui-sortable-placeholder {
+	visibility:visible !important;
+	border:2px dotted #DFDFDF;
+	background-color:white;
+}
+
+.clearfix {
+	clear:both;
+}
