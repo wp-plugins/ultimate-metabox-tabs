@@ -3,10 +3,15 @@
 	{
 		$post_info = array();
 		$post_name = "Global Options";
+	}
+	else if (isset($_REQUEST['settings']))
+	{
+		$post_info = array();
+		$post_name = $this->extensions[$_REQUEST['settings']]['name'];
 	}	
 	else
 	{
-		$post_info = get_post_type_object($this->posttype);
+		$post_info = get_post_type_object($this->post_type);
 		$post_name = $post_info->labels->name;
 	}
 
@@ -27,6 +32,7 @@
 		<label for="post_divid"><?php echo __('DIV ID','umt'); ?>:</label>
 		<input type="text" name="umt_div[<?php echo $group['id']; ?>][<?php echo $div['id']; ?>]" size="30" tabindex="1" value="<?php echo $div['name']; ?>" class="metabox-divid" autocomplete="off">
 		<a href="#" class="metabox-divremove">( - )</a>
+		<div class="ui-div-sort"></div>
 	</li>
 	<?php
 	}
@@ -45,7 +51,7 @@
 	{
 	?>
 	<li class="group postbox" group-id="<?php echo $group['id']; ?>">
-		<div id="titlediv hndle">
+		<div id="titlediv">
 			<h3 class="hndle">
 				<?php echo __('Group','umt'); ?>
 				<a href="#" class="metabox-groupremove">[X]</a>

@@ -88,13 +88,35 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#3b97c9', endC
 	background-color:whiteSmoke;
 }
 
-#metabox-editor .div.ui-sortable-helper {
-	border-top:1px solid #DFDFDF;
+#metabox-editor .div.ui-sortable-helper, #metabox-editor .ui-state-highlight {
 	border-left:1px solid #DFDFDF;
+	background-color:whiteSmoke;
 }
 
 #metabox-editor .group_name input {
 	font-size:16px;
+}
+
+.extension-list {
+	margin-top:10px;
+}
+
+.extension-list .title-wrapper {
+	height:50px;
+}
+
+.extension-list p {
+	margin:0;
+}
+
+.extension-list a {
+	display:block;
+	padding-top:10px;
+	padding-bottom:10px;
+}
+
+.extension_description p {
+
 }
 
 ul.meta-group {

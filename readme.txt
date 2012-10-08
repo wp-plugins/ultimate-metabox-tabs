@@ -53,16 +53,44 @@ Q. The metabox tabs are buggy with certain plugins, either not appearing or havi
 
 A. As of now, on post types at least, Metabox tabs inserts itself just before the content, and pushes itself up via the CSS, this means things that attempt to hide the content may interfere. If you're a developer who knows a better filter/hook location, please contact me.
 
+Q. Why have you allowed disabling and enabling ACF options and the hide content patch?
+
+A. In the case where I stop supporting this plugin and they break ACF after an update, you can now toggle them off.
+
+Q. How do I make the content only available on a certain tab?
+
+A. Type "+the_content" without the quotations. This is a special custom function.
+
+Q. Custom Functions? What if I want to write my own?
+
+A. umt_custom_inactive-{slug} and umt_custom_active-{slug} hooks. I recommend you check out the ultimate-metabox-tabs.php file to see how I do it for "the_content". Just keep in mind the "+" represents a function, not a div.
+
+Q. I want to write a custom metabox tab settings page. How?
+
+A. Check out api.php and extensions/acf/acf_options_mod.php, If there is more demand for extensions, I'll write more thorough documentation.
+
+Q. How do I change the ordering of the tabs between Global Options and certain post types?
+
+A. Short answer is, you can't as of yet. Global options will always be in front of posts/option pages.
+
 == Upgrade Notice ==
-None yet. First public release.
+None necessary.
 
 == Changelog ==
 
+= 0.9.4 =
+* Added extensions API, which will allow for custom settings pages.
+* Added a patch extension (toggeable) which allows ACF's "Hide Content" option to work.
+* Allowed the toggling of the ACF Options Page metatabs, in case of users not wanting them there or future ACF update breaks.
+
 = 0.9.3 =
 * Fixed a bug in the umt-post.js that caused saving to work oddly.
+
 = 0.9.2 =
 * Fixed a bug in the javascript that stopped Firefox from working.
+
 = 0.9.1 = 
 * Fixed invalid script/style hooks in ACF Options Page.
+
 = 0.9.0 =
 * Internal Beta release.

@@ -3,7 +3,7 @@
 Plugin Name: Ultimate Metabox Tabs
 Plugin URI: none
 Description: Adds extendable metabox tabs to your posts.
-Version: 0.9.3
+Version: 0.9.4
 Author: SilbinaryWolf
 Author URI: none
 License: GPLv2 or later
@@ -11,22 +11,31 @@ License: GPLv2 or later
 /*
 	Changelog:
 	----------
-	0.9.3 - Fixed a bug in the umt-post.js that caused saving to work oddly.
-	0.9.2 - Fixed a bug in the javascript that stopped Firefox from working.
-	0.9.1 - Fixed invalid script/style hooks in ACF Options Page
-	0.9.0 - Beta testing
-*/
+	= 0.9.4 =
+	* Added extensions API, which will allow for custom settings pages.
+	* Added a patch extension (toggeable) which allows ACF's "Hide Content" option to work.
+	* Allowed the toggling of the ACF Options Page metatabs, in case of users not wanting them there or future ACF update breaks.
 
-/*
-	To Do:
-	-------
-	- Debug why Metatabs aren't saving properly
+	= 0.9.3 =
+	* Fixed a bug in the umt-post.js that caused saving to work oddly.
 	
-	Control+F "#POTBUG" to find potential Metabox Tab Breaking code.
-
+	= 0.9.2 =
+	* Fixed a bug in the javascript that stopped Firefox from working.
+	
+	= 0.9.1 = 
+	* Fixed invalid script/style hooks in ACF Options Page.
+	
+	= 0.9.0 =
+	* Internal Beta release.
+*/
+/*
+	Control+F "#POTBUG" to find potential Metabox Tab Breaking code
 */
 
-/* Setup Metabox Tab Object */
+include_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'api.php');
+
+// Setup Metabox Tab Object
+global $sw_ultimateMetaboxTab;
 $sw_ultimateMetaboxTab = new UltimateMetaboxTabs();
 
 class UltimateMetaboxTabs
@@ -37,15 +46,19 @@ class UltimateMetaboxTabs
 		$option_autoload,
 		$post_database_prefix,
 		$option_database_prefix,
+		$extension_database_prefix,
 		$metatab_info,
 		$menu_parent,
 		$menu_slug,
 		$menu_url,
 		$extensions,
+		$settings_pages,
 		$metatabs_post_loaded,
 		$metatabs_options_loaded,
+		$metatab_custom_settings_loaded,
 		$metatabs_created,
-		$posttype;
+		$post_type,
+		$settings_type;
 
 	/*--------------------------------------------------------------------------------------
 	*
@@ -60,21 +73,30 @@ class UltimateMetaboxTabs
 		// vars
 		$this->dir = plugin_dir_path(__FILE__);
 		$this->url = plugins_url('',__FILE__);
-		$this->version = '0.9.3';
+		$this->version = '0.9.4';
 		
 		// The array where the metabox tabs are loaded into.
 		$this->metatab_info = array();
+		
+		// These arrays store extensions and pages registered to give the plugin extra functionalitys
 		$this->extensions = array();
+		$this->settings_pages = array();
 		
 		// Whether the metabox tabs have been loaded and/or created.
 		$this->metatabs_post_loaded = false;
 		$this->metatabs_options_loaded = false;
+		$this->metatab_custom_settings_loaded = array();
 		$this->metatabs_created = false;
 		
 		// Database Settings
 		$this->option_autoload = true;
+		$this->extension_database_prefix = "sw_extension_metatab_";
 		$this->post_database_prefix = "sw_post_metatab_";
 		$this->option_database_prefix = "sw_option_metatab";
+		
+		// 
+		$this->settings_database_prefix = "sw_";
+		$this->settings_database_suffix = "_metatab";
 		
 		// Menu Settings
 		$this->menu_parent = 'options-general.php';
@@ -85,6 +107,7 @@ class UltimateMetaboxTabs
 		$this->menu_url = admin_url($this->menu_parent.'?page='.$this->menu_slug);
 		
 		// actions/filters
+		add_filter("plugin_action_links_" . plugin_basename(__FILE__), array($this,'plugin_settings_link') );
 		
 		// 
 		add_action('admin_head-post.php', array($this, 'admin_head'));
@@ -115,16 +138,23 @@ class UltimateMetaboxTabs
 		global $acf;
 		if (isset($acf))
 		{
-			// only include acf support if acf is used
-			include_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'addon' . DIRECTORY_SEPARATOR . 'acf' . DIRECTORY_SEPARATOR . 'options_page_mod.php');
-			
-			// create extension
-			$this->extensions['acf-options'] = new umt_acf_options_page($this);
-		}
-		
-
-	}
+			$acf_addon_dir = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'extensions' . DIRECTORY_SEPARATOR . 'acf' . DIRECTORY_SEPARATOR;
+			// Add ACF Options Support
+			$this->add_extension(	"acf-options", 
+									__("ACF Options","umt"), 
+									__("Overrides the ACF Options page class and gives it Metabox Tabs.","umt"),
+									"umt_acf_options_page",
+									$acf_addon_dir . 'options_page_mod.php');
 	
+			// Add ACF Hide Content Support
+			$this->add_extension(	"acf-hide-content", 
+									__("ACF Hide Content Patch","umt"), 
+									__("Patches the 'admin_head' (and ajax call) of the ACF input controller so it hides the content in an alternative way.\n I recommend you disable this if you don't use 'Hide Content' and metabox tabs on the same page for maximum ACF compatiblity.","umt"),
+									"umt_acf_hide_content_patch",
+									$acf_addon_dir . 'hide_content_patch.php');
+		}
+		do_action('umt_extension_loader');
+	}
 	
 	/*--------------------------------------------------------------------------------------
 	*
@@ -142,32 +172,109 @@ class UltimateMetaboxTabs
 	
 	/*--------------------------------------------------------------------------------------
 	*
-	*	umt_acf_init
-	*	Overrides the ACF options page
+	*	add_extension
 	*
 	*	@author SilbinaryWolf
 	*	@since 1.0.0
 	* 
 	*-------------------------------------------------------------------------------------*/
-	function umt_acf_init()
+	function add_extension($slug, $name, $description, $object, $includedir = false)
 	{
-		// setup acf and mod the main ACF object to use a customized options page.
-		global $acf;
-		if (isset($acf->options_page))
+		if (isset($this->extensions[$slug]) === false)
 		{
-			// only include acf support if acf is used
-			include_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'addon' . DIRECTORY_SEPARATOR . 'acf' . DIRECTORY_SEPARATOR . 'options_page_override.php');
+			// check for error
+			if (is_object($object))
+			{
+				trigger_error('Ultimate Metabox Tabs requires you type the $object as a string.');
+				return false;
+			}
+		
+			// load if extension is enabled (by default, it is)
+			$enabled = get_option($this->extension_database_prefix . $slug,true);
 			
-			// modify the options page setup so it can be overriden
-			remove_action('admin_menu', array($acf->options_page,'admin_menu'));
-			$acf->options_page = new umt_acf_options_page($acf);
-			$acf->options_page->umt = $this;
+			// setup extension
+			$this->extensions[$slug] = array();
+			$this->extensions[$slug]['name'] = $name;
+			$this->extensions[$slug]['description'] = $description;
+			$this->extensions[$slug]['object'] = false;
+			$this->extensions[$slug]['enabled'] = $enabled;
 			
-			$this->extensions['acf-options'] = true;
+			// Only create the extension object if it's enabled.
+			if ($enabled)
+			{
+				// include only if enabled
+				if ($includedir !== false)
+				{
+					include_once($includedir);
+				}
+				// if the input is a string, make it create the object
+				if (is_string($object))
+				{
+					if (class_exists($object))
+					{
+						$object = new $object($this);
+					}
+					else
+					{
+						trigger_error("Invalid Ultimate Metabox Tabs extension, class does not exist.");
+						$this->extensions[$slug]['description'] = "- Invalid Ultimate Metabox Tabs extension, class does not exist. -" . $this->extensions[$slug]['description'];
+						// Disable Extension
+						$enabled = false;
+						$this->extensions[$slug]['enabled'] = $enabled;
+					}
+				}
+			
+				// set the object
+				$this->extensions[$slug]['object'] = $object;
+				
+				// setup additional included variables
+				$object->umt = $this;
+				$object->umt_name = $name;
+				$object->umt_description = $description;
+				$object->umt_slug = $slug;
+				$object->umt_enabled = $enabled;
+			}
+			return true;
 		}
-		else
+		return false;
+	}
+	
+	/*--------------------------------------------------------------------------------------
+	*
+	*	register_settings_page
+	*
+	*	@author SilbinaryWolf
+	*	@since 1.0.0
+	* 
+	*-------------------------------------------------------------------------------------*/
+	function register_settings_page($slug, $name)
+	{	
+		if (isset($this->settings_pages[$slug]) == false)
 		{
-			trigger_error("Metabox Tabs is out of date for ACF support!");
+			$this->settings_pages[$slug] = array();
+			$this->settings_pages[$slug]['name'] = $name;
+		}
+		return false;
+	}
+	
+	/*--------------------------------------------------------------------------------------
+	*
+	*	extension_save
+	*
+	*	@author SilbinaryWolf
+	*	@since 1.0.0
+	* 
+	*-------------------------------------------------------------------------------------*/
+	function extension_save($slug, $enable)
+	{
+		if ($slug != NULL && $slug != false && $slug != "")
+		{
+			// Wordpress can't store exactly false, so make it numerical.
+			if ($enable === false)
+			{
+				$enable = 0;
+			}
+			update_option( $this->extension_database_prefix . $slug, $enable );
 		}
 	}
 	
@@ -435,37 +542,84 @@ class UltimateMetaboxTabs
 	*-------------------------------------------------------------------------------------*/
 	function admin_load()
 	{
-		if ($this->posttype !== NULL)
+		// Choose general post metabox or option metaboxes
+		if ($this->post_type !== NULL)
 		{
-			/* Choose general post metabox or option metaboxes */
-			if ($this->posttype == "options" || $this->posttype == "option")
-			{
-				$option_name = $this->option_database_prefix;
-			}
-			else
-			{
-				$option_name = $this->post_database_prefix . $this->posttype;
-			}
-			/* Get the values */
-			$value = get_option($option_name,NULL);
-			if ($value === NULL || $value === false)
-			{
-				/* Setup Default Options */
-				$value = array();
-				
-				/* Create Group */
-				$group = array();
-				
-				/* Create DIV */
-				$divid = array();
-				return $value;
-			}
-			else
-			{
-				return $value;
-			}
+			$option_name = $this->post_database_prefix . $this->post_type;
 		}
-		return NULL;
+		else if ($this->settings_type == "options")
+		{
+			$option_name = $this->option_database_prefix;
+		}
+		else if ($this->settings_type != NULL)
+		{
+			$option_name = $this->settings_database_prefix . $this->settings_type . $this->settings_database_suffix;
+		}
+		else
+		{
+			return NULL;
+		}
+		/* Get the values */
+		$value = get_option($option_name,NULL);
+		if ($value === NULL || $value === false)
+		{
+			/* Setup Default Options */
+			$value = array();
+			
+			/* Create Group */
+			$group = array();
+			
+			/* Create DIV */
+			$divid = array();
+			return $value;
+		}
+		else
+		{
+			return $value;
+		}
+	}
+	
+	/*--------------------------------------------------------------------------------------
+	*
+	*	metatab_load_settings_page
+	* 	loads the metatabs for a specific metatab page.
+	*
+	*	@author SilbinaryWolf
+	*	@since 1.0.0
+	* 
+	*-------------------------------------------------------------------------------------*/
+	function metatab_load_settings_page($slug)
+	{
+		if (isset($this->metatab_custom_settings_loaded[$slug]) == false || $this->metatab_custom_settings_loaded[$slug] == false)
+		{
+			$option_name = $this->settings_database_prefix . $slug . $this->settings_database_suffix;
+			$metatab_settings = get_option($option_name,array());
+			if ($metatab_settings === NULL || $metatab_settings === false)
+			{
+				$metatab_settings = array();
+			}
+			if (count($this->metatab_info)>0)
+			{
+				// Make sure metabox tabs with the same group name are fused together
+				foreach($this->metatab_info as $key => $metatab)
+				{
+					foreach ($metatab_settings as $key_post => $metatab_setting)
+					{
+						if ($metatab['name'] == $metatab_setting['name'])
+						{
+							$this->metatab_info[$key]['div'] = array_merge($this->metatab_info[$key]['div'],$metatab_settings[$key_post]['div']);
+						}
+					}
+				}
+				// Merge unmatching group names together
+				$this->metatab_info = array_merge($metatab_settings,$this->metatab_info);
+			}
+			else
+			{
+				$this->metatab_info = $metatab_settings;
+			}
+			$this->metatab_custom_settings_loaded[$slug] = true;
+		}
 	}
 	
 	/*--------------------------------------------------------------------------------------
@@ -483,12 +637,31 @@ class UltimateMetaboxTabs
 		{
 			$option_name = $this->option_database_prefix;
 			// Load the metatab information
-			$metatab_options = get_option($option_name,NULL);
+			$metatab_options = get_option($option_name,array());
 			if ($metatab_options === NULL || $metatab_options === false)
 			{
 				$metatab_options = array();
 			}
-			$this->metatab_info = $metatab_options;
+			if (count($this->metatab_info)>0)
+			{
+				// Make sure metabox tabs with the same group name are fused together
+				foreach($this->metatab_info as $key => $metatab)
+				{
+					foreach ($metatab_options as $key_post => $metatab_option)
+					{
+						if ($metatab['name'] == $metatab_option['name'])
+						{
+							$this->metatab_info[$key]['div'] = array_merge($this->metatab_info[$key]['div'],$metatab_options[$key_post]['div']);
+						}
+					}
+				}
+				// Merge unmatching group names together
+				$this->metatab_info = array_merge($metatab_options,$this->metatab_info);
+			}
+			else
+			{
+				$this->metatab_info = $metatab_options;
+			}
 			
 			// enable loaded flag
 			$this->metatabs_options_loaded = true;
@@ -500,8 +673,8 @@ class UltimateMetaboxTabs
 			{
 				// Setup defaults
 				$this->metatabs_post_loaded = true;
-				$this->posttype = get_post_type();
-				$option_name = $this->post_database_prefix . $this->posttype;
+				$this->post_type = get_post_type();
+				$option_name = $this->post_database_prefix . $this->post_type;
 				
 				// Load the metatab information
 				$metatab_posts = get_option($option_name,NULL);
@@ -660,6 +833,22 @@ class UltimateMetaboxTabs
 	
 	/*--------------------------------------------------------------------------------------
 	*
+	*	plugin_settings_link
+	* 	adds a settings hyperlink to the plugin menu
+	*
+	*	@author SilbinaryWolf
+	*	@since 1.0.0
+	* 
+	*-------------------------------------------------------------------------------------*/
+	function plugin_settings_link($links)
+	{
+		$settings_link = '<a href="' . $this->menu_parent . '?page=' . $this->menu_slug . '">Settings</a>';
+		array_unshift($links, $settings_link); 
+		return $links; 
+	}
+	
+	/*--------------------------------------------------------------------------------------
+	*
 	*	metatab_create
 	* 	creates the desired metatabs
 	*
@@ -779,13 +968,17 @@ class UltimateMetaboxTabs
 		}
 		// debug save data
 		//print_r($all_groups);
-		if ($this->posttype == 'options' || $this->posttype == 'option')
+		if ($this->post_type !== NULL)
+		{
+			$option_name = $this->post_database_prefix . $this->post_type;
+		}
+		else if ($this->settings_type == 'options')
 		{
 			$option_name = $this->option_database_prefix;
 		}
 		else
 		{
-			$option_name = $this->post_database_prefix . $this->posttype;
+			$option_name = $this->settings_database_prefix . $this->settings_type . $this->settings_database_suffix;
 		}
 		update_option( $option_name, $all_groups );
 		return true;
@@ -801,16 +994,22 @@ class UltimateMetaboxTabs
 	*-------------------------------------------------------------------------------------*/
 	function admin_view()
 	{
-		if (isset($_REQUEST['posttype']) || isset($_REQUEST['options']))
+		if (isset($_REQUEST['posttype']) || isset($_REQUEST['options']) || isset($_REQUEST['settings']))
 		{
 			// Check if it's a post type page or options page
 			if (isset($_REQUEST['posttype']))
 			{
-				$this->posttype = $_REQUEST['posttype'];
+				$this->post_type = $_REQUEST['posttype'];
 			}
 			else if (isset($_REQUEST['options']))
 			{
-				$this->posttype = 'options';
+				$this->post_type = NULL;
+				$this->settings_type = 'options';
+			}
+			else if (isset($_REQUEST['settings']))
+			{
+				$this->post_type = NULL;
+				$this->settings_type = $_REQUEST['settings'];
 			}
 			$save = false;
 			if (isset($_POST['umt_sent']))
@@ -819,6 +1018,25 @@ class UltimateMetaboxTabs
 			}
 			$groups = $this->admin_load();
 			include($this->dir . "/view/post.php");
+		}
+		else if (isset($_REQUEST['enable']) || isset($_REQUEST['disable']))
+		{
+			$slug = "<unknown>";
+			$enable = true;
+			
+			if (isset($_REQUEST['enable']))
+			{
+				$slug = $_REQUEST['enable'];
+				$enable = true;
+				$this->extension_save($_REQUEST['enable'],true);
+			}
+			else if (isset($_REQUEST['disable']))
+			{
+				$slug = $_REQUEST['disable'];
+				$enable = false;
+				$this->extension_save($_REQUEST['disable'],false);
+			}
+			include($this->dir . "/view/extension-update.php");
 		}
 		else
 		{

@@ -79,7 +79,7 @@
 	
 	$(document).ready(function() {
 		$('.div_sort').sortable();
-		$('.meta-group').sortable();
+		$('.meta-group').sortable({ handle: '.hndle', placeholder: 'ui-state-highlight', forcePlaceholderSize: true });
 	});
 
 })(jQuery);
