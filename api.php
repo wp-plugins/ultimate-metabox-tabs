@@ -36,4 +36,25 @@ function umt_register_settings_page($slug, $name)
 	return $sw_ultimateMetaboxTab->register_settings_page($slug, $name);
 }
 
+
+/*--------------------------------------------------------------------------------------
+*
+*	umt_register_div_types
+*	This will register a list of selectable divs for the Metatab Editor.
+*
+*	$groupname = Name of the group of div ids. (eg. List of ACF metaboxes is called "ACF")
+*
+*	$list [array]: "name", "value", "class"
+*			name = Option Name
+*			value = DIV ID
+*
+*	@author SilbinaryWolf
+*	@since 1.0.0
+* 
+*-------------------------------------------------------------------------------------*/
+function umt_register_div_types($groupname,$list)
+{
+	global $sw_ultimateMetaboxTab;
+	return $sw_ultimateMetaboxTab->register_div_types($groupname,$list);
+}
 ?>

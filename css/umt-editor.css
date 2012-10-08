@@ -88,6 +88,20 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#3b97c9', endC
 	background-color:whiteSmoke;
 }
 
+#metabox-editor .div p {
+	display:inline;
+}
+
+#metabox-editor .div select {
+	display:inline;
+	width:220px;
+}
+
+#metabox-editor .div select option.title {
+	font-style:italic;
+	font-weight:bold;
+}
+
 #metabox-editor .div.ui-sortable-helper, #metabox-editor .ui-state-highlight {
 	border-left:1px solid #DFDFDF;
 	background-color:whiteSmoke;

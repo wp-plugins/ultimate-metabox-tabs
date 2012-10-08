@@ -31,7 +31,7 @@ class umt_acf_options_page extends acf_options_page
 		}
 		else
 		{
-			trigger_error("ACF Options Page support for Ultimate Metabox Tabs has become broken. Please contact the developer. Email: jake_1012@hotmail.com");
+			trigger_error("ACF Options Page support for Ultimate Metabox Tabs has become broken. Please contact the developer. For now, disable the extension.");
 		}
 	}
 	

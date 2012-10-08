@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=jake_
 Tags: tabs, ultimate, metabox, tabs, sorting, clean, fast, easy, metabox tabs, admin, advanced, custom, fields, addons, easy, div, posts, pages, options, metaboxes
 Requires at least: 3.0
 Tested up to: 3.4.2
-Stable tag: 3.4.2
+Stable tag: 0.9.5
 License: GPLv2 or later
 
 Ultimate Metabox Tabs allows for keeping your post/page and ACF options user friendly for your client with the use of tabs.
@@ -35,11 +35,12 @@ They're also inserted at server-time, meaning no ugly javascript forcing the met
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Click on the new menu item "Settings -> Metabox Tabs" and start sorting out your metaboxes.
 4. You'll find the post types of which the metaboxes can be sorted on, as well as Global Options, which will affect ACF Options and all post types.
-5. Edit the desired post type/options and procede to adding tab groups, to find out your metaboxes DIV ID, go to the page using it, and inspect element it.
+5. Edit the desired post type/options and procede to adding tab groups, to find out your metaboxes DIV ID, go to the page using it, and inspect element it. In the latest update, you can now just select an ACF post in a select box.
 
 = Tested on =
 * Windows Chrome
 * Windows Firefox
+* Windows Safari
 * Mac Chrome
 * Mac Firefox
 * Windows Internet Explorer 8
@@ -74,9 +75,13 @@ Q. How do I change the ordering of the tabs between Global Options and certain p
 A. Short answer is, you can't as of yet. Global options will always be in front of posts/option pages.
 
 == Upgrade Notice ==
-None necessary.
+* From 0.9.4 onward, I suggest you delete the 'addons' folder, as it has been renamed to 'extensions' and that is used from now on. It's just a waste of a few kb, it won't harm anything.
 
 == Changelog ==
+
+= 0.9.5 =
+* Added a select box extension, for easy configuration with ACF.
+* Added a new extension API command, so that custom metabox selections can be created.
 
 = 0.9.4 =
 * Added extensions API, which will allow for custom settings pages.

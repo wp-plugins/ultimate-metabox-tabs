@@ -40,7 +40,7 @@ class umt_acf_hide_content_patch
 		}
 		else
 		{
-			trigger_error("ACF 'Hide Content Patch' support for Ultimate Metabox Tabs has become broken. Please contact the developer. Email: jake_1012@hotmail.com");
+			trigger_error("ACF 'Hide Content Patch' support for Ultimate Metabox Tabs has become broken. Please contact the developer. For now, disable the extension.");
 		}
 	}
 

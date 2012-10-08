@@ -3,7 +3,7 @@
 Plugin Name: Ultimate Metabox Tabs
 Plugin URI: none
 Description: Adds extendable metabox tabs to your posts.
-Version: 0.9.4
+Version: 0.9.5
 Author: SilbinaryWolf
 Author URI: none
 License: GPLv2 or later
@@ -11,6 +11,10 @@ License: GPLv2 or later
 /*
 	Changelog:
 	----------
+	= 0.9.5 =
+	* Added a select box extension, for easy configuration with ACF.
+	* Added a new extension API command, so that custom metabox selections can be created.
+	
 	= 0.9.4 =
 	* Added extensions API, which will allow for custom settings pages.
 	* Added a patch extension (toggeable) which allows ACF's "Hide Content" option to work.
@@ -43,6 +47,7 @@ class UltimateMetaboxTabs
 	var $dir,
 		$url,
 		$version,
+		$developer_email,
 		$option_autoload,
 		$post_database_prefix,
 		$option_database_prefix,
@@ -53,6 +58,7 @@ class UltimateMetaboxTabs
 		$menu_url,
 		$extensions,
 		$settings_pages,
+		$div_options,
 		$metatabs_post_loaded,
 		$metatabs_options_loaded,
 		$metatab_custom_settings_loaded,
@@ -73,7 +79,8 @@ class UltimateMetaboxTabs
 		// vars
 		$this->dir = plugin_dir_path(__FILE__);
 		$this->url = plugins_url('',__FILE__);
-		$this->version = '0.9.4';
+		$this->developer_email = "doogie1012@gmail.com";
+		$this->version = '0.9.5';
 		
 		// The array where the metabox tabs are loaded into.
 		$this->metatab_info = array();
@@ -81,6 +88,7 @@ class UltimateMetaboxTabs
 		// These arrays store extensions and pages registered to give the plugin extra functionalitys
 		$this->extensions = array();
 		$this->settings_pages = array();
+		$this->div_options = array();
 		
 		// Whether the metabox tabs have been loaded and/or created.
 		$this->metatabs_post_loaded = false;
@@ -145,6 +153,13 @@ class UltimateMetaboxTabs
 									__("Overrides the ACF Options page class and gives it Metabox Tabs.","umt"),
 									"umt_acf_options_page",
 									$acf_addon_dir . 'options_page_mod.php');
+									
+			// Add ACF Post List Support
+			$this->add_extension(	"acf-post-list", 
+									__("ACF Post Lists","umt"), 
+									__("Adds ACF posts as a selectable div to the metatab editor.","umt"),
+									"umt_acf_post_list",
+									$acf_addon_dir . 'acf_post_list.php');
 	
 			// Add ACF Hide Content Support
 			$this->add_extension(	"acf-hide-content", 
@@ -255,6 +270,23 @@ class UltimateMetaboxTabs
 			$this->settings_pages[$slug]['name'] = $name;
 		}
 		return false;
+	}
+	
+	/*--------------------------------------------------------------------------------------
+	*
+	*	register_div_types
+	*
+	*	@author SilbinaryWolf
+	*	@since 1.0.0
+	* 
+	*-------------------------------------------------------------------------------------*/
+	function register_div_types($groupname,$list)
+	{
+		$group = array();
+		$group['name'] = $groupname;
+		$group['div'] = $list;
+		
+		array_push($this->div_options,$group);
 	}
 	
 	/*--------------------------------------------------------------------------------------
@@ -509,6 +541,8 @@ class UltimateMetaboxTabs
 	*-------------------------------------------------------------------------------------*/
 	function admin_menu_print_styles()
 	{
+		do_action('umt_admin_menu_print_styles');
+		
 		wp_register_style('ultimate-metabox-tabs-editor-css',$this->url . '/css/umt-editor.css');
 		wp_enqueue_style('ultimate-metabox-tabs-editor-css');
 	}
@@ -523,6 +557,8 @@ class UltimateMetaboxTabs
 	*-------------------------------------------------------------------------------------*/
 	function admin_menu_print_scripts()
 	{
+		do_action('umt_admin_menu_print_scripts');
+		
 		wp_enqueue_script('jquery');
 		wp_enqueue_script('jquery-ui-core');
 		wp_enqueue_script('jquery-ui-sortable');

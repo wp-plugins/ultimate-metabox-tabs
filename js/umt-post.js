@@ -77,6 +77,14 @@
 		$(this).parent().remove();
 	});
 	
+	$('.metabox-divid').live('change', function(event){
+		$(this).parent().children('select').val($(this).val());
+	});
+	
+	$('.post_divselect').live('change', function(event){
+		$(this).parent().children('input').val($(this).val());
+	});
+	
 	$(document).ready(function() {
 		$('.div_sort').sortable();
 		$('.meta-group').sortable({ handle: '.hndle', placeholder: 'ui-state-highlight', forcePlaceholderSize: true });
