@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=jake_
 Tags: tabs, ultimate, metabox, tabs, sorting, clean, fast, easy, metabox tabs, admin, advanced, custom, fields, addons, easy, div, posts, pages, options, metaboxes
 Requires at least: 3.0
 Tested up to: 3.4.2
-Stable tag: 0.9.5
+Stable tag: trunk
 License: GPLv2 or later
 
 Ultimate Metabox Tabs allows for keeping your post/page and ACF options user friendly for your client with the use of tabs.
