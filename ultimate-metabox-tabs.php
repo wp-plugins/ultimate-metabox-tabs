@@ -3,7 +3,7 @@
 Plugin Name: Ultimate Metabox Tabs
 Plugin URI: none
 Description: Adds extendable metabox tabs to your posts.
-Version: 0.9.5
+Version: 0.9.6
 Author: SilbinaryWolf
 Author URI: none
 License: GPLv2 or later
@@ -86,7 +86,7 @@ class UltimateMetaboxTabs
 		$this->dir = plugin_dir_path(__FILE__);
 		$this->url = plugins_url('',__FILE__);
 		$this->developer_email = "doogie1012@gmail.com";
-		$this->version = '0.9.5';
+		$this->version = '0.9.6';
 		
 		// The array where the metabox tabs are loaded into.
 		$this->metatab_info = array();
