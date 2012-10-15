@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=jake_
 Tags: tabs, ultimate, metabox, tabs, sorting, clean, fast, easy, metabox tabs, admin, advanced, custom, fields, addons, easy, div, posts, pages, options, metaboxes
 Requires at least: 3.0
 Tested up to: 3.4.2
-Stable tag: trunk
+Stable tag: 0.9.6
 License: GPLv2 or later
 
 Ultimate Metabox Tabs allows for keeping your post/page and ACF options user friendly for your client with the use of tabs.
@@ -60,11 +60,11 @@ A. In the case where I stop supporting this plugin and they break ACF after an u
 
 Q. How do I make the content only available on a certain tab?
 
-A. Type "+the_content" without the quotations. This is a special custom function.
+A. Type "+the_content" without the quotations. This is a special custom function. You can now also use the select box to just select it.
 
 Q. Custom Functions? What if I want to write my own?
 
-A. umt_custom_inactive-{slug} and umt_custom_active-{slug} hooks. I recommend you check out the ultimate-metabox-tabs.php file to see how I do it for "the_content". Just keep in mind the "+" represents a function, not a div.
+A. Check out umt_add_custom_command() in api.php (root folder of the plugin)
 
 Q. I want to write a custom metabox tab settings page. How?
 
@@ -78,6 +78,10 @@ A. Short answer is, you can't as of yet. Global options will always be in front 
 * From 0.9.4 onward, I suggest you delete the 'addons' folder, as it has been renamed to 'extensions' and that is used from now on. It's just a waste of a few kb, it won't harm anything.
 
 == Changelog ==
+
+= 0.9.6 =
+* Fixed a bug with the ACF post list. (Wouldn't show all posts)
+* Slight interface bug with moving DIV IDs
 
 = 0.9.5 =
 * Added a select box extension, for easy configuration with ACF.

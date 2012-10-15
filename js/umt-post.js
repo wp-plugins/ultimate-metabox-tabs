@@ -86,7 +86,7 @@
 	});
 	
 	$(document).ready(function() {
-		$('.div_sort').sortable();
+		$('.div_sort').sortable({ handle: $(this), placeholder: 'ui-state-highlight', forcePlaceholderSize: true });
 		$('.meta-group').sortable({ handle: '.hndle', placeholder: 'ui-state-highlight', forcePlaceholderSize: true });
 	});
 

@@ -11,6 +11,11 @@ License: GPLv2 or later
 /*
 	Changelog:
 	----------
+	= 0.9.6 =
+	* Fixed a bug with the ACF post list. (Wouldn't show all posts)
+	* Slight interface bug with moving DIV IDs
+	* Changed how custom commands are registered.
+	
 	= 0.9.5 =
 	* Added a select box extension, for easy configuration with ACF.
 	* Added a new extension API command, so that custom metabox selections can be created.
@@ -59,6 +64,7 @@ class UltimateMetaboxTabs
 		$extensions,
 		$settings_pages,
 		$div_options,
+		$special_command_div_options,
 		$metatabs_post_loaded,
 		$metatabs_options_loaded,
 		$metatab_custom_settings_loaded,
@@ -88,7 +94,9 @@ class UltimateMetaboxTabs
 		// These arrays store extensions and pages registered to give the plugin extra functionalitys
 		$this->extensions = array();
 		$this->settings_pages = array();
+		
 		$this->div_options = array();
+		$this->special_command_div_options = array();
 		
 		// Whether the metabox tabs have been loaded and/or created.
 		$this->metatabs_post_loaded = false;
@@ -138,8 +146,7 @@ class UltimateMetaboxTabs
 		add_action('umt_template', array($this, 'metatab_template'), 10, 1);
 		
 		// Custom DIV Command(s)
-		add_action('umt_custom_inactive-the_content', array($this, 'metatab_custom_inactive_the_content'));
-		add_action('umt_custom_active-the_content', array($this, 'metatab_custom_active_the_content'));
+		$this->add_custom_command("The Content", "the_content", array($this, 'metatab_custom_inactive_the_content'),array($this, 'metatab_custom_active_the_content'));
 		
 		// Extend the support to specific plugins
 		// include ACF options page support if ACF exists
@@ -280,13 +287,22 @@ class UltimateMetaboxTabs
 	*	@since 1.0.0
 	* 
 	*-------------------------------------------------------------------------------------*/
-	function register_div_types($groupname,$list)
+	function register_div_types($groupname,$list,$insertattop = false)
 	{
 		$group = array();
 		$group['name'] = $groupname;
 		$group['div'] = $list;
 		
-		array_push($this->div_options,$group);
+		if ($insertattop == false)
+		{
+			array_push($this->div_options,$group);
+		}
+		else
+		{
+			$newdivoptions = array();
+			array_push($newdivoptions,$group);
+			$this->div_options = array_merge($newdivoptions,$this->div_options);
+		}
 	}
 	
 	/*--------------------------------------------------------------------------------------
@@ -308,6 +324,25 @@ class UltimateMetaboxTabs
 			}
 			update_option( $this->extension_database_prefix . $slug, $enable );
 		}
+	}
+	
+	/*--------------------------------------------------------------------------------------
+	*
+	*	add_custom_command
+	*
+	*	@author SilbinaryWolf
+	*	@since 1.0.0
+	* 
+	*-------------------------------------------------------------------------------------*/
+	function add_custom_command($selectname, $command_functionname, $inactive_function, $active_function)
+	{
+		// add custom command hooks
+		add_action('umt_custom_inactive-' . $command_functionname, $inactive_function);
+		add_action('umt_custom_active-' . $command_functionname, $active_function);
+	
+		// Add it to the special commands div list
+		$div = array('name' => $selectname, 'value' => "+".$command_functionname);
+		array_push($this->special_command_div_options,$div);
 	}
 	
 	/*--------------------------------------------------------------------------------------
@@ -1030,6 +1065,12 @@ class UltimateMetaboxTabs
 	*-------------------------------------------------------------------------------------*/
 	function admin_view()
 	{
+		// Add Special Commands to the div types 
+		if (count($this->special_command_div_options)>0)
+		{
+			$this->register_div_types(__('Special Commands','umt'),$this->special_command_div_options,true);
+		}
+	
 		if (isset($_REQUEST['posttype']) || isset($_REQUEST['options']) || isset($_REQUEST['settings']))
 		{
 			// Check if it's a post type page or options page

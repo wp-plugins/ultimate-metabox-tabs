@@ -72,6 +72,11 @@ background: #3B97C9;
 filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#3b97c9', endColorstr='#246f99');
 }
 
+#metabox-editor .div .hndle {
+	display:inline;
+	width:180px;
+}
+
 #metabox-editor .hndle {
 	font-size: 15px;
 	font-weight: normal;

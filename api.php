@@ -20,6 +20,26 @@ function umt_add_extension($slug, $name, $description, $classname, $includedir =
 
 /*--------------------------------------------------------------------------------------
 *
+*	umt_add_custom_command
+*	Creates your own special case "+" command.
+*
+*	$selectname = Selectbox Name for Item
+*	$command_functionname = The Function name (eg. the_content) (note: does not contain the +)
+*	$inactive_function = The styling to write when the tab isn't selected (eg. "my_func" or array(4this,"myfunc") )
+*	$active_function = The styling to write when the tab is selected (eg. "my_func" or array(4this,"myfunc") )
+*
+*	@author SilbinaryWolf
+*	@since 1.0.0
+* 
+*-------------------------------------------------------------------------------------*/
+function umt_add_custom_command($selectname, $command_functionname, $inactive_function, $active_function)
+{
+	global $sw_ultimateMetaboxTab;
+	return $sw_ultimateMetaboxTab->add_custom_command($selectname, $command_functionname, $inactive_function, $active_function);
+}
+
+/*--------------------------------------------------------------------------------------
+*
 *	umt_register_settings_page
 *	This will create a custom settings page on the Metabox Tabs menu. 
 *

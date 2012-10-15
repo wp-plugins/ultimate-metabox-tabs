@@ -25,7 +25,7 @@
 	* 
 	*-------------------------------------------------------------------------------------
 	*/
-	function umt_div($div, $group, $div_options)
+	function umt_div($umt, $div, $group, $div_options)
 	{
 	?>
 	<li class="div">
@@ -63,7 +63,7 @@
 	* 
 	*-------------------------------------------------------------------------------------
 	*/
-	function umt_group($group, $div_options)
+	function umt_group($umt, $group, $div_options)
 	{
 	?>
 	<li class="group postbox" group-id="<?php echo $group['id']; ?>">
@@ -81,7 +81,7 @@
 		<ul class="div_sort">
 		<?php if (isset($group['div'])): ?>
 		<?php foreach ($group['div'] as $div): ?>
-		<?php umt_div($div,$group,$div_options); ?>
+		<?php umt_div($umt,$div,$group,$div_options); ?>
 		<?php endforeach; ?>
 		<?php endif; ?>
 		</ul>
@@ -104,17 +104,17 @@
 	<?php endif; ?>
 	<div id="meta-data" style="display:none;">
 		<div id="meta-newdiv">
-			<?php umt_div(array('name' => '', 'id' => uniqid()),array('id' => uniqid()),$this->div_options); ?>
+			<?php umt_div($this,array('name' => '', 'id' => uniqid()),array('id' => uniqid()),$this->div_options); ?>
 		</div>
 		<div id="meta-newgroup">
-			<?php umt_group(array('name' => '', 'id' => uniqid()),$this->div_options); ?>
+			<?php umt_group($this,array('name' => '', 'id' => uniqid()),$this->div_options); ?>
 		</div>
 	</div>
 	<div id="post-body">
 		<form action="#" method="POST">
 			<ul class="meta-group post-body-content">
 				<?php foreach ($groups as $group): ?>
-				<?php umt_group($group,$this->div_options); ?>
+				<?php umt_group($this,$group,$this->div_options); ?>
 				<?php endforeach; ?>
 				<a id="metabox-lastgroup" class="metabox-newgroup" href="#">+ <?php echo __('Add New Group','umt'); ?></a>
 			</ul>

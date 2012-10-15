@@ -2,11 +2,9 @@
 /*--------------------------------------------------------------------------
 *
 *	umt_acf_post_list
-*
 *	
 *
 *	@author SilbinaryWolf
-*	@acf_options_page author Elliot Condon
 * 
 *-------------------------------------------------------------------------*/
 
@@ -27,6 +25,7 @@ class umt_acf_post_list
 		// setup acf
 		if (post_type_exists('acf'))
 		{
+			// hooks to the admin_men_print_styles if its used by Ultimate Metabox tabs
 			add_action('umt_admin_menu_print_styles',array($this,'admin_menu_print_styles'));
 		}
 		else
@@ -37,8 +36,9 @@ class umt_acf_post_list
 	
 	function admin_menu_print_styles()
 	{
+		// Reads the ACF posts, which act as metaboxes
 		$posts = array();
-		$query = new WP_Query("post_type=acf");
+		$query = new WP_Query("post_type=acf&showposts=-1");
 		while($query->have_posts()) 
 		{
 			$query->the_post();
@@ -49,8 +49,8 @@ class umt_acf_post_list
 		}
 		wp_reset_query();
 		
-		//
-		umt_register_div_types("ACF",$posts);
+		// Places the posts into a div group list
+		umt_register_div_types(__( 'Advanced Custom Fields', 'acf' ),$posts);
 	}
 }
 ?>
