@@ -3,7 +3,7 @@
 Plugin Name: Ultimate Metabox Tabs
 Plugin URI: none
 Description: Adds extendable metabox tabs to your posts.
-Version: 0.9.5
+Version: 0.9.6
 Author: SilbinaryWolf
 Author URI: none
 License: GPLv2 or later
