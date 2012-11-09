@@ -29,18 +29,22 @@ class umt_acf_hide_content_patch
 	{
 		$this->umt = $parent;
 		
-		// Setup Addon
-		global $acf;
-		if (isset($acf->input))
+		// Only use this extension if the patch isn't in use.
+		if ($this->umt->using_top_page_hook <= 0)
 		{
-			$this->patch_string = '#wp-content-editor-container , #post-status-info { position:absolute !important; left:-6000px !important; height:0px !important; } #wp-content-editor-tools { opacity:0 !important; } #post-body-content { height:75px !important; } ';
-		
-			// setup initiation procedure
-			add_action('init',array($this,'init'));
-		}
-		else
-		{
-			trigger_error("ACF 'Hide Content Patch' support for Ultimate Metabox Tabs has become broken. Please contact the developer. For now, disable the extension.");
+			// Setup Addon
+			global $acf;
+			if (isset($acf->input))
+			{
+				$this->patch_string = '#wp-content-editor-container , #post-status-info { position:absolute !important; left:-6000px !important; height:0px !important; } #wp-content-editor-tools { opacity:0 !important; } #post-body-content { height:75px !important; } ';
+			
+				// setup initiation procedure
+				add_action('init',array($this,'init'));
+			}
+			else
+			{
+				trigger_error("ACF 'Hide Content Patch' support for Ultimate Metabox Tabs has become broken. Please contact the developer. For now, disable the extension.");
+			}
 		}
 	}
 

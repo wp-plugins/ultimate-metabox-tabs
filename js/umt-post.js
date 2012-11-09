@@ -52,29 +52,38 @@
 		var newGroup = $('#meta-newgroup .group').clone()
 		var newGroupID = uniqid();
 		$(newGroup).attr('group-id',newGroupID);
-		$(newGroup).children('div').children('div').children('input').attr('name','umt_group[' + newGroupID +']');
+		$(newGroup).children('div').children('table').children('tbody').children('tr').children('td').children('div').children('input').attr('name','umt_group[' + newGroupID +']');
 		$(this).before($(newGroup));
-	});
-
-	$('.metabox-newdiv').live('click', function(event){
-		event.preventDefault ? event.preventDefault() : event.returnValue = false;
-		var groupID = $(this).parent().parent().attr('group-id');
+		
+		// add new div
+		var groupID = newGroupID;
 		if (groupID !== undefined)
 		{
 			var newDivID = $('#meta-newdiv .div').clone()
 			$(newDivID).children('input').attr('name','umt_div[' + groupID +'][' + uniqid() + ']');
-			$(this).parent().children('ul').append($(newDivID));
+			$(newGroup).children('ul').append($(newDivID));
+		}
+	});
+
+	$('.metabox-newdiv').live('click', function(event){
+		event.preventDefault ? event.preventDefault() : event.returnValue = false;
+		var groupID = $(this).parent().parent().parent().attr('group-id');
+		if (groupID !== undefined)
+		{
+			var newDivID = $('#meta-newdiv .div').clone()
+			$(newDivID).children('table').children('tbody').children('tr').children('td').children('div').children('input').attr('name','umt_div[' + groupID +'][' + uniqid() + ']');
+			$(this).parent().parent().parent().children('.information').children('ul').append($(newDivID));
 		}
 	});
 	
 	$('.metabox-groupremove').live('click', function(event){
 		event.preventDefault ? event.preventDefault() : event.returnValue = false;
-		$(this).parent().parent().parent().remove();
+		$(this).parent().parent().parent().parent().parent().parent().remove();
 	});
 	
 	$('.metabox-divremove').live('click', function(event){
 		event.preventDefault ? event.preventDefault() : event.returnValue = false;
-		$(this).parent().remove();
+		$(this).parent().parent().parent().parent().parent().parent().remove();
 	});
 	
 	$('.metabox-divid').live('change', function(event){
@@ -87,7 +96,7 @@
 	
 	$(document).ready(function() {
 		$('.div_sort').sortable({ handle: $(this), placeholder: 'ui-state-highlight', forcePlaceholderSize: true });
-		$('.meta-group').sortable({ handle: '.hndle', placeholder: 'ui-state-highlight', forcePlaceholderSize: true });
+		$('.meta-group').sortable({ handle: "table thead", placeholder: 'ui-state-highlight', forcePlaceholderSize: true });
 	});
 
 })(jQuery);

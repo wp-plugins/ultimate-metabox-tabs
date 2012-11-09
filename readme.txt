@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=jake_
 Tags: tabs, ultimate, metabox, tabs, sorting, clean, fast, easy, metabox tabs, admin, advanced, custom, fields, addons, easy, div, posts, pages, options, metaboxes
 Requires at least: 3.0
 Tested up to: 3.4.2
-Stable tag: 0.9.6
+Stable tag: 0.9.7
 License: GPLv2 or later
 
 Ultimate Metabox Tabs allows for keeping your post/page and ACF options user friendly for your client with the use of tabs.
@@ -22,12 +22,6 @@ They're also inserted at server-time, meaning no ugly javascript forcing the met
 2. The second tab is clicked, it now shows that there is a metabox available for editing and that the content can be hidden.
 
 3. The admin editing page for the previous 2 screenshots. It shows that you need the Div ID of the metaboxes and that you can also hide the content with +the_content
-
-4. The tabs in action on the Advanced Custom Fields options page. Shows multiple boxes.
-
-5. The second tab selected on the Advanced Custom Fields page, the other boxes are hidden, and now new boxes appear.
-
-6. The admin editing page for the previous 2 screenshots again.
 
 == Installation ==
 
@@ -52,7 +46,7 @@ Contact me at doogie1012@gmail.com
 
 Q. The metabox tabs are buggy with certain plugins, either not appearing or having weird behaviour. Why?
 
-A. As of now, on post types at least, Metabox tabs inserts itself just before the content, and pushes itself up via the CSS, this means things that attempt to hide the content may interfere. If you're a developer who knows a better filter/hook location, please contact me.
+A. As of now, on post types at least, Metabox tabs inserts itself just before the content, and pushes itself up via the CSS, this means things that attempt to hide the content may interfere. This can be averted by going to the "Patches" menu and applying the Edit Advanced Forms patch.
 
 Q. Why have you allowed disabling and enabling ACF options and the hide content patch?
 
@@ -70,14 +64,14 @@ Q. I want to write a custom metabox tab settings page. How?
 
 A. Check out api.php and extensions/acf/acf_options_mod.php, If there is more demand for extensions, I'll write more thorough documentation.
 
-Q. How do I change the ordering of the tabs between Global Options and certain post types?
-
-A. Short answer is, you can't as of yet. Global options will always be in front of posts/option pages.
-
 == Upgrade Notice ==
 * From 0.9.4 onward, I suggest you delete the 'addons' folder, as it has been renamed to 'extensions' and that is used from now on. It's just a waste of a few kb, it won't harm anything.
 
 == Changelog ==
+
+= 0.9.7 =
+* Added a patching mechanism that edits the core Wordpress files, allow for greater plugin compatibility. (qTranslate is supported with the patch enabled)
+* Changed the UI, its much neater and easier to look at now.
 
 = 0.9.6 =
 * Fixed a bug with the ACF post list. (Wouldn't show all posts)

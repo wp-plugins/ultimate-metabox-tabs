@@ -3,7 +3,7 @@
 Plugin Name: Ultimate Metabox Tabs
 Plugin URI: none
 Description: Adds extendable metabox tabs to your posts.
-Version: 0.9.6
+Version: 0.9.7
 Author: SilbinaryWolf
 Author URI: none
 License: GPLv2 or later
@@ -62,6 +62,7 @@ class UltimateMetaboxTabs
 		$menu_slug,
 		$menu_url,
 		$extensions,
+		$patches,
 		$settings_pages,
 		$div_options,
 		$special_command_div_options,
@@ -86,14 +87,33 @@ class UltimateMetaboxTabs
 		$this->dir = plugin_dir_path(__FILE__);
 		$this->url = plugins_url('',__FILE__);
 		$this->developer_email = "doogie1012@gmail.com";
-		$this->version = '0.9.6';
+		$this->version = '0.9.7';
+		
+		// Database Settings
+		$this->option_autoload = true;
+		$this->extension_database_prefix = "sw_extension_metatab_";
+		$this->post_database_prefix = "sw_post_metatab_";
+		$this->option_database_prefix = "sw_option_metatab";
+		$this->settings_database_prefix = "sw_";
+		$this->settings_database_suffix = "_metatab";
+		
+		// Menu Settings
+		$this->menu_parent = 'options-general.php';
+		$this->menu_slug = 'metabox-tabs';
+		$this->css_enable_class = 'umt_enabled';
+		
+		// URL Setting
+		$this->menu_url = admin_url($this->menu_parent.'?page='.$this->menu_slug);
 		
 		// The array where the metabox tabs are loaded into.
 		$this->metatab_info = array();
 		
 		// These arrays store extensions and pages registered to give the plugin extra functionalitys
 		$this->extensions = array();
+		$this->patches = array();
 		$this->settings_pages = array();
+		
+		$this->using_top_page_hook = false;
 		
 		$this->div_options = array();
 		$this->special_command_div_options = array();
@@ -104,28 +124,26 @@ class UltimateMetaboxTabs
 		$this->metatab_custom_settings_loaded = array();
 		$this->metatabs_created = false;
 		
-		// Database Settings
-		$this->option_autoload = true;
-		$this->extension_database_prefix = "sw_extension_metatab_";
-		$this->post_database_prefix = "sw_post_metatab_";
-		$this->option_database_prefix = "sw_option_metatab";
+		//
 		
-		// 
-		$this->settings_database_prefix = "sw_";
-		$this->settings_database_suffix = "_metatab";
-		
-		// Menu Settings
-		$this->menu_parent = 'options-general.php';
-		$this->menu_slug = 'metabox-tabs';
-		$this->css_enable_class = 'umt_enabled';
-
-		// URL Setting
-		$this->menu_url = admin_url($this->menu_parent.'?page='.$this->menu_slug);
-		
-		// actions/filters
+		// setup hooks
+		add_action("init",array($this,"init"),0);
+	}
+	
+	/*--------------------------------------------------------------------------------------
+	*
+	*	init
+	*
+	*	@author SilbinaryWolf
+	*	@since 1.0.0
+	* 
+	*-------------------------------------------------------------------------------------*/
+	function init()
+	{
+		// add a settings hyperlink to the plugin page
 		add_filter("plugin_action_links_" . plugin_basename(__FILE__), array($this,'plugin_settings_link') );
 		
-		// 
+		// setup post/page hooks
 		add_action('admin_head-post.php', array($this, 'admin_head'));
 		add_action('admin_print_styles-post.php', array($this, 'admin_print_styles'));
 		add_action('admin_print_scripts-post.php', array($this, 'admin_print_scripts'));
@@ -134,21 +152,41 @@ class UltimateMetaboxTabs
 		add_action('admin_print_styles-post-new.php', array($this, 'admin_print_styles'));
 		add_action('admin_print_scripts-post-new.php', array($this, 'admin_print_scripts'));
 		
+		// setup edit ui hooks
 		add_action('admin_print_scripts-settings_page_' . $this->menu_slug, array($this, 'admin_menu_print_scripts'));
 		add_action('admin_print_styles-settings_page_' . $this->menu_slug, array($this, 'admin_menu_print_styles'));
 		
+		// add metabox tabs to the admin menu
 		add_action('admin_menu', array($this,'admin_menu'));
 
+		// hook location of the metabox html
 		add_filter('richedit_pre', array($this,'richedit_pre'),99); // Creates the metabox tabs
+		
+		// add classes to enable/disable metabox tabs
 		add_filter('admin_body_class', array($this,'admin_body_class'));
 		
 		// custom actions
 		add_action('umt_template', array($this, 'metatab_template'), 10, 1);
 		
-		// Custom DIV Command(s)
+		// register custom div commands
 		$this->add_custom_command("The Content", "the_content", array($this, 'metatab_custom_inactive_the_content'),array($this, 'metatab_custom_active_the_content'));
 		
 		// Extend the support to specific plugins
+		$addon_dir = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'extensions' . DIRECTORY_SEPARATOR;
+		$patch_dir = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'patches' . DIRECTORY_SEPARATOR;
+		
+		// Install Patcher
+		include_once($patch_dir . 'edit_form_advanced_patcher.php');
+		$this->patches['edit_form_advanced_patcher'] = new umt_edit_form_advanced_patcher($this);
+		if ($this->patches['edit_form_advanced_patcher']->status>0)
+		{
+			$this->using_top_page_hook = true;
+			remove_filter('richedit_pre', array($this,'richedit_pre'),99);
+
+			// This action only exists AFTER the edit_form_advanced_patcher has been applied.
+			add_action('post_header_html',array($this,'post_header_html'),0);
+		}
+		
 		// include ACF options page support if ACF exists
 		global $acf;
 		if (isset($acf))
@@ -167,7 +205,7 @@ class UltimateMetaboxTabs
 									__("Adds ACF posts as a selectable div to the metatab editor.","umt"),
 									"umt_acf_post_list",
 									$acf_addon_dir . 'acf_post_list.php');
-	
+									
 			// Add ACF Hide Content Support
 			$this->add_extension(	"acf-hide-content", 
 									__("ACF Hide Content Patch","umt"), 
@@ -175,6 +213,15 @@ class UltimateMetaboxTabs
 									"umt_acf_hide_content_patch",
 									$acf_addon_dir . 'hide_content_patch.php');
 		}
+		
+		// 
+		/*$this->add_extension(	"admin-hook-patch", 
+								__("Admin Hook Patch","umt"), 
+								__("Alpha test","umt"),
+								"umt_admin_hook_patch",
+								$addon_dir . 'admin_hook_patch.php');*/
+		
+		// load more extensions
 		do_action('umt_extension_loader');
 	}
 	
@@ -190,6 +237,21 @@ class UltimateMetaboxTabs
 	{
 		$this->metatab_create();
 		return $pre;
+	}
+	
+	/*--------------------------------------------------------------------------------------
+	*
+	*	post_header_html
+	*
+	*	@author SilbinaryWolf
+	*	@since 1.0.0
+	* 
+	*-------------------------------------------------------------------------------------*/
+	function post_header_html()
+	{
+		echo '<div class="post_header_html">';
+		$this->metatab_create();
+		echo '</div>';
 	}
 	
 	/*--------------------------------------------------------------------------------------
@@ -416,10 +478,9 @@ class UltimateMetaboxTabs
 			{
 				return $classes;
 			}
-			/*
-				If all metabox tabs were deleted due to no found metaboxes
-				disable the metabox tab spacing.
-			*/
+			
+			//	If all metabox tabs were deleted due to no found metaboxes
+			//	disable the metabox tab spacing.
 
 			if (count($this->metatab_info)>0)
 			{
@@ -428,6 +489,10 @@ class UltimateMetaboxTabs
 				if (count($this->metatab_info)>1)
 				{
 					$classes .= " umt_group_" . $first_metatab['id'] . "_class " . $this->css_enable_class;
+					if ($this->using_top_page_hook > 0)
+					{
+						$classes .= " umt_no_margin";
+					}
 				}
 				else
 				{
@@ -982,13 +1047,30 @@ class UltimateMetaboxTabs
 	*-------------------------------------------------------------------------------------*/
 	function metatab_custom_inactive_the_content($id)
 	{
-		return $id . '#wp-content-editor-container , ' . $id . '#post-status-info { position:absolute; left:-6000px; height:0px; } ' . $id . '#wp-content-editor-tools { opacity:0; }  ' . $id . '#post-body-content { height:75px; } '."\n";
+		// If patched, use the correct hide content method.
+		if ($this->using_top_page_hook > 0)
+		{
+			return $id . '#postdivrich { display:none; } '."\n";
+		}
+		else
+		{
+			return $id . '#wp-content-editor-container , ' . $id . '#post-status-info { position:absolute; left:-6000px; height:0px; } ' . $id . '#wp-content-editor-tools { opacity:0; }  ' . $id . '#post-body-content { height:75px; } '."\n";
+		}
 	}
 	
 	function metatab_custom_active_the_content($id)
 	{
-		$id = "." . $this->css_enable_class . "" . $id;
-		return $id . '#wp-content-editor-container , ' . $id . '#post-status-info { position:relative; left:inherit; height:auto; } ' . $id . '#wp-content-editor-tools { opacity:inherit; } ' . $id . '#post-body-content { height:auto; } '."\n";
+		// If patched, use the correct hide content method.
+		if ($this->using_top_page_hook > 0)
+		{
+			$id = "." . $this->css_enable_class . "" . $id;
+			return $id . '#postdivrich { display:block; } '."\n";
+		}
+		else
+		{
+			$id = "." . $this->css_enable_class . "" . $id;
+			return $id . '#wp-content-editor-container , ' . $id . '#post-status-info { position:relative; left:inherit; height:auto; } ' . $id . '#wp-content-editor-tools { opacity:inherit; } ' . $id . '#post-body-content { height:auto; } '."\n";
+		}
 	}
 	
 	/*--------------------------------------------------------------------------------------
@@ -1070,8 +1152,25 @@ class UltimateMetaboxTabs
 		{
 			$this->register_div_types(__('Special Commands','umt'),$this->special_command_div_options,true);
 		}
-	
-		if (isset($_REQUEST['posttype']) || isset($_REQUEST['options']) || isset($_REQUEST['settings']))
+		
+		if (isset($_REQUEST['subpage']))
+		{
+			switch ($_REQUEST['subpage'])
+			{
+				case 'extension':
+					include($this->dir . "/view/extension.php");
+				break;
+				
+				case 'patcher':
+					foreach ($this->patches as $slug => $patch)
+					{
+						$patch->init();
+					}
+					include($this->dir . "/view/patcher.php");
+				break;
+			}
+		}
+		else if (isset($_REQUEST['posttype']) || isset($_REQUEST['options']) || isset($_REQUEST['settings']))
 		{
 			// Check if it's a post type page or options page
 			if (isset($_REQUEST['posttype']))

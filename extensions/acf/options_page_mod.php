@@ -24,7 +24,7 @@ class umt_acf_options_page extends acf_options_page
 			parent::__construct($acf);
 		
 			// setup initiation procedure
-			add_action('init',array($this,'init'));
+			add_action('init',array($this,'init'),99);
 			
 			// setup register options page init
 			add_action('admin_init',array($this,'umt_admin_init'));
@@ -45,6 +45,12 @@ class umt_acf_options_page extends acf_options_page
 		$acf->options_page = $this;
 	}
 	
+	function admin_body_class($classes)
+	{
+		$classes = str_replace(" umt_no_margin","",$classes);
+		return $classes;
+	}
+	
 	function umt_admin_init()
 	{
 		// register metatabs page
@@ -54,6 +60,8 @@ class umt_acf_options_page extends acf_options_page
 	function admin_head() {
 		$this->umt->metatab_load_settings_page($this->umt_slug);
   		$this->umt->admin_head();
+		
+		add_filter('admin_body_class',array($this,'admin_body_class'));
 		
 		parent::admin_head();
 	}

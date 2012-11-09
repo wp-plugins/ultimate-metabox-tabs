@@ -4,11 +4,23 @@
 	margin-top:40px;
 }
 
+.umt_enabled.umt_no_margin #poststuff {
+	margin-top:0px;
+}
+
+/* If on option page */
 #wpbody-content #sw-ultimate-metabox-tab-list{
 	position:absolute;
 	top:-50px;
 }
 
+/* If using patched 'action' hook */
+#wpbody-content .post_header_html #sw-ultimate-metabox-tab-list {
+	position:absolute;
+	top:0px;
+}
+
+/* If not using any patches and just css hacky */
 #postdivrich #wp-content-wrap #sw-ultimate-metabox-tab-list{
 	position:absolute;
 	top:-150px;
@@ -17,6 +29,11 @@
 #sw-ultimate-metabox-tab-list-container {
 	position:relative;
 	width:100%;
+}
+
+/* Only give it a height if there is no margin padding (ie. If the patch is applied) */
+.umt_enabled.umt_no_margin #sw-ultimate-metabox-tab-list-container {
+	height:35px;
 }
 
 #sw-ultimate-metabox-tab-list {

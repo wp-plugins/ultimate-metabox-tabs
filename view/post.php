@@ -29,26 +29,40 @@
 	{
 	?>
 	<li class="div">
-		<label for="post_divid"><?php echo __('DIV ID','umt'); ?>:</label>
-		<input type="text" name="umt_div[<?php echo $group['id']; ?>][<?php echo $div['id']; ?>]" size="30" tabindex="1" value="<?php echo $div['name']; ?>" class="metabox-divid" autocomplete="off">
-		<?php if (count($div_options)>0): ?>
-		<p> OR </p>
-		<select class="post_divselect" selected="<?php echo $div['name']; ?>">
-			<option name="none" value="">- None -</option>
-			<?php foreach ($div_options as $optiongroup): ?>
-			<optgroup label="<?php echo $optiongroup['name']; ?>">
-				<?php foreach ($optiongroup['div'] as $optiondiv): ?>
-				<?php 
-					$class = isset($optiondiv['class']) ? ' class="'.$optiondiv["class"].'"' : "";
-					$selected = $div['name'] == $optiondiv['value'] ? ' selected="selected"' : '';
-				?>
-				<option name="<?php echo $optiondiv['value']; ?>" value="<?php echo $optiondiv['value']; ?>" <?php echo $class . $selected; ?>><?php echo $optiondiv['name']; ?></option>
-				<?php endforeach; ?>
-			<?php endforeach; ?>
-			</optgroup>
-		</select>
-		<?php endif; ?>
-		<a href="#" class="metabox-divremove">( - )</a>
+		<table class="umt editpage">
+			<tbody>
+				<tr>
+					<td class="group_name">
+					</td>
+					<td class="div_name">
+						<div class="td_content">
+							<input type="text" name="umt_div[<?php echo $group['id']; ?>][<?php echo $div['id']; ?>]" size="30" tabindex="1" value="<?php echo $div['name']; ?>" class="metabox-divid" autocomplete="off">
+							<?php if (count($div_options)>0): ?>
+							<select class="post_divselect" selected="<?php echo $div['name']; ?>">
+								<option name="none" value="">- None -</option>
+								<?php foreach ($div_options as $optiongroup): ?>
+								<optgroup label="<?php echo $optiongroup['name']; ?>">
+									<?php foreach ($optiongroup['div'] as $optiondiv): ?>
+									<?php 
+										$class = isset($optiondiv['class']) ? ' class="'.$optiondiv["class"].'"' : "";
+										$selected = $div['name'] == $optiondiv['value'] ? ' selected="selected"' : '';
+									?>
+									<option name="<?php echo $optiondiv['value']; ?>" value="<?php echo $optiondiv['value']; ?>" <?php echo $class . $selected; ?>><?php echo $optiondiv['name']; ?></option>
+									<?php endforeach; ?>
+								<?php endforeach; ?>
+								</optgroup>
+							</select>
+							<?php endif; ?>
+						</div>
+					</td>
+					<td class="div_remove">
+						<div class="td_content">
+							<a href="#" class="metabox-divremove">[x]</a>
+						</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
 	</li>
 	<?php
 	}
@@ -67,25 +81,56 @@
 	{
 	?>
 	<li class="group postbox" group-id="<?php echo $group['id']; ?>">
-		<div id="titlediv">
-			<h3 class="hndle">
-				<?php echo __('Group','umt'); ?>
-				<a href="#" class="metabox-groupremove">[X]</a>
-			</h3>
+		<table class="umt editpage">
+			<thead>
+				<tr>
+					<td class="group_name">
+						<div class="td_content">
+							<?php echo __('Tab Name','umt'); ?>
+						</div>
+					</td>
+					<td class="div_name">
+						<div class="td_content">
+							Div ID
+						</div>
+					</div>
+					<td class="div_remove">
+						<div class="td_content">
+							Delete
+						</div>
+					</td>
+				</tr>
+			</thead>
+		</table>
+		<div class="information">
+			<table class="umt editpage">
+				<tbody>
+					<tr>
+						<td class="group_name">
+							<div class="td_content">
+								<input class="group_name_input" type="text" name="umt_group[<?php echo $group['id']; ?>]" size="30" tabindex="1" value="<?php echo $group['name']; ?>" id="title" autocomplete="off">
+							</div>
+						</td>
+						<td class="div_name">
+						</div>
+						<td class="div_remove">
+							<a href="#" class="metabox-groupremove">[x]</a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<ul class="div_sort">
+			<?php if (isset($group['div'])): ?>
+			<?php foreach ($group['div'] as $div): ?>
+			<?php umt_div($umt,$div,$group,$div_options); ?>
+			<?php endforeach; ?>
+			<?php endif; ?>
+			</ul>
 		</div>
-		<div class="inside">
-		<div class="group_name">
-			<label for="post_divid"><?php echo __('Group Name','umt'); ?>:</label>
-			<input type="text" name="umt_group[<?php echo $group['id']; ?>]" size="30" tabindex="1" value="<?php echo $group['name']; ?>" id="title" autocomplete="off">
-		</div>
-		<ul class="div_sort">
-		<?php if (isset($group['div'])): ?>
-		<?php foreach ($group['div'] as $div): ?>
-		<?php umt_div($umt,$div,$group,$div_options); ?>
-		<?php endforeach; ?>
-		<?php endif; ?>
-		</ul>
-		<a class="metabox-lastdivid metabox-newdiv" href="#">+ <?php echo __('Add New DIV ID','umt'); ?></a>
+		<div class="table_footer">
+			<div class="col_2">
+				<a class="metabox-lastdivid metabox-newdiv" href="#">+ <?php echo __('New Metabox','umt'); ?></a>
+			</div>
 		</div>
 	</li>
 	<?php
@@ -116,7 +161,7 @@
 				<?php foreach ($groups as $group): ?>
 				<?php umt_group($this,$group,$this->div_options); ?>
 				<?php endforeach; ?>
-				<a id="metabox-lastgroup" class="metabox-newgroup" href="#">+ <?php echo __('Add New Group','umt'); ?></a>
+				<a id="metabox-lastgroup" class="metabox-newgroup" href="#">+ <?php echo __('Add New Tab Group','umt'); ?></a>
 			</ul>
 			<div id="postbox-save">
 				<div id="submitdiv" class="postbox">
