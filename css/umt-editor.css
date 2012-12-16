@@ -1,0 +1,262 @@
+
+.title-wrapper p, .title-wrapper h2 {
+	float:left;
+}
+
+.title-wrapper p {
+	line-height:30px;
+}
+
+.wrap .nav-tab-wrapper {
+	margin-bottom:10px;
+}
+
+#metabox-editor #post-body {
+	display:block;
+	margin-top:20px;
+}
+
+#metabox-editor input {
+	border-color: #CCC;
+	font-family: sans-serif;
+	font-size: 12px;
+	line-height: 1.4em;
+	width:25%;
+}
+
+#metabox-editor label {
+	color: #333;
+	font-size: 13px;
+	font-weight: bold;
+	padding: 0;
+	margin: 0 0 3px;
+	display: block;
+	vertical-align: text-bottom;
+	cursor:default;
+}
+
+.post-body-content {
+	float:left;
+	width:100%;
+}
+
+#post-body {
+	margin-right:300px;
+}
+
+#postbox-save {
+	float:right;
+	width:280px;
+	margin-right:-300px;
+}
+
+#metabox-editor .submit-button {
+	display: block;
+	width:auto;
+	border-radius: 4px;
+	background: #2C8BBE;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#2c8bbe', endColorstr='#246f99');
+	color: white;
+	font-weight: normal;
+	text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+	font-size: 13px;
+	line-height: 1em;
+	padding: 6px 11px;
+	border: 0 none;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+	cursor: pointer;
+	position: relative;
+	text-align: center;
+	text-decoration: none;
+
+}
+
+#metabox-editor .submit-button:hover {
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+background: #3B97C9;
+filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#3b97c9', endColorstr='#246f99');
+}
+
+#metabox-editor .div .hndle {
+	display:inline;
+	width:180px;
+}
+
+#metabox-editor .hndle {
+	font-size: 15px;
+	font-weight: normal;
+	line-height: 1;
+	font-size: 15px;
+	font-weight: normal;
+	padding: 7px 10px;
+	margin: 0;
+	line-height: 1;
+}
+
+#metabox-editor .div {
+	cursor:move;
+	background-color:whiteSmoke;
+}
+
+#metabox-editor .group table thead {
+	cursor:move;
+}
+
+#metabox-editor .div p {
+	display:inline;
+}
+
+#metabox-editor .div select {
+	display:inline;
+	width:220px;
+}
+
+#metabox-editor .div select option.title {
+	font-style:italic;
+	font-weight:bold;
+}
+
+#metabox-editor .div.ui-sortable-helper, #metabox-editor .ui-state-highlight {
+	border-left:1px solid #DFDFDF;
+	background-color:whiteSmoke;
+}
+
+#metabox-editor .group_name input {
+	font-size:16px;
+}
+
+#metabox-editor table {
+	width:100%;
+}
+
+#metabox-editor .div_sort table.editpage{
+	
+}
+
+.div_sort li:nth-child(even) table {
+	background-color:#F9F9F9;
+}
+
+#metabox-editor table tr, #metabox-editor  .table_footer {
+	height:34px;
+	line-height:34px;
+}
+
+#metabox-editor  input.group_name_input {
+	width:75%;
+}
+
+.table_footer {
+	background-color:#EAF4EA;
+}
+
+#metabox-editor table td {
+	width:25%;
+}
+
+#metabox-editor table td.group_name {
+	width:15%;
+}
+
+#metabox-editor table td.div_remove {
+	width:5%;
+}
+
+.information li {
+	margin:0;
+}
+
+#metabox-editor table thead td {
+	border:0px;
+	font-family:Georgia,"Times New Roman","Bitstream Charter",Times,serif;
+	font-size:16px;
+	background-color:#F1F1F1;
+	
+	background-image:-o-linear-gradient(top,#F9F9F9,#ECECEC);
+	background-image:-webkit-gradient(linear,left top,left bottom,from(#F9F9F9),to(#ECECEC));
+	background-image:-webkit-linear-gradient(top,#F9F9F9,#ECECEC);
+	background-image:linear-gradient(top,#F9F9F9,#ECECEC);
+}
+
+#metabox-editor table .group_name .td_content {
+	text-indent:10px;
+}
+
+#metabox-editor table .group_name .td_content input{
+	margin-top:10px;
+}
+
+#metabox-editor  .table_footer .col_2 {
+	float:right;
+	padding-right:10px;
+}
+
+/* 
+	--------------------
+	Extension List CSS
+	--------------------
+*/
+
+.extension-list {
+	margin-top:10px;
+}
+
+.extension-list .title-wrapper {
+	height:50px;
+}
+
+.extension-list p {
+	margin:0;
+}
+
+.extension-list a {
+	display:block;
+	padding-top:10px;
+	padding-bottom:10px;
+}
+
+.extension_description p {
+
+}
+
+.extension-list .patch_status {
+	margin-top:10px;
+	margin-bottom:10px;
+}
+
+.extension-list .patch_status p {
+	display:inline;
+	font-style:italic;
+}
+
+.extension-list .patch_status p.status {
+	font-weight:bold;
+	text-transform:uppercase;
+	font-style:normal;
+}
+
+.extension-list .patch_status p.status.ok {
+	color:#4A9C2A;
+}
+
+.extension-list .patch_status p.status.not_patched {
+	color:#F09622;
+}
+
+.extension-list .patch_status p.status.error {
+	color:#B81A1A;
+}
+
+ul.meta-group {
+	margin:0;
+}
+
+.ui-sortable-placeholder {
+	visibility:visible !important;
+	border:2px dotted #DFDFDF;
+	background-color:white;
+}
+
+.clearfix {
+	clear:both;
+}
