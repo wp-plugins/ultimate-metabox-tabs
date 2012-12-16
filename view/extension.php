@@ -6,15 +6,15 @@
 	
 	<div class="clearfix"></div>
 	<h2 class="nav-tab-wrapper">
-		<a href="<?php echo $this->menu_url; ?>" class="nav-tab">General</a>
-		<a href="<?php echo add_query_arg('subpage', 'extension' , $this->menu_url); ?>" class="nav-tab nav-tab-active">Extensions</a>
-		<a href="<?php echo add_query_arg('subpage', 'patcher' , $this->menu_url); ?>" class="nav-tab">Patches</a>
+		<a href="<?php echo $this->menu_url; ?>" class="nav-tab"><?php echo __('General','umt'); ?></a>
+		<a href="<?php echo add_query_arg('subpage', 'extension' , $this->menu_url); ?>" class="nav-tab nav-tab-active"><?php echo __('Extensions','umt'); ?></a>
+		<a href="<?php echo add_query_arg('subpage', 'patcher' , $this->menu_url); ?>" class="nav-tab"><?php echo __('Patches','umt'); ?></a>
 	</h2>
 	
 	<div class="extension-list">
 		<div class="extension">
 			<?php if (count($this->extensions)<=0) : ?>
-			<h3>No extensions available. ACF Extensions will remain hidden unless ACF is active.</h3>
+			<h3><?php echo __('No extensions available. ACF Extensions will remain hidden unless ACF is active.','umt'); ?></h3>
 			<?php endif; ?>
 			<?php foreach ($this->extensions as $slug => $extension): ?>
 			<?php $description_array = explode("\n",$extension['description']); ?>

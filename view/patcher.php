@@ -5,9 +5,9 @@
 	</div>
 	<div class="clearfix"></div>
 	<h2 class="nav-tab-wrapper">
-		<a href="<?php echo $this->menu_url; ?>" class="nav-tab">General</a>
-		<a href="<?php echo add_query_arg('subpage', 'extension' , $this->menu_url); ?>" class="nav-tab">Extensions</a>
-		<a href="<?php echo add_query_arg('subpage', 'patcher' , $this->menu_url); ?>" class="nav-tab nav-tab-active">Patches</a>
+		<a href="<?php echo $this->menu_url; ?>" class="nav-tab"><?php echo __('General','umt'); ?></a>
+		<a href="<?php echo add_query_arg('subpage', 'extension' , $this->menu_url); ?>" class="nav-tab"><?php echo __('Extensions','umt'); ?></a>
+		<a href="<?php echo add_query_arg('subpage', 'patcher' , $this->menu_url); ?>" class="nav-tab nav-tab-active"><?php echo __('Patches','umt'); ?></a>
 	</h2>
 	
 	<?php if (isset($_REQUEST['apply_patch'])): ?>
@@ -47,7 +47,7 @@
 	<div class="extension-list patcher">
 		<div class="extension">
 			<?php if (count($this->patches)<=0) : ?>
-			<h3>No patches available.</h3>
+			<h3><?php echo __('No patches available.','umt'); ?></h3>
 			<?php endif; ?>
 			<?php foreach ($this->patches as $slug => $patch): ?>
 			<?php if ($patch->status === true) { $status_class = " ok"; } else if ($patch->status === false) { $status_class = " not_patched"; } else { $status_class = " error"; } ?>

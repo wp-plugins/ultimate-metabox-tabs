@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=jake_
 Tags: tabs, ultimate, metabox, tabs, sorting, clean, fast, easy, metabox tabs, admin, advanced, custom, fields, addons, easy, div, posts, pages, options, metaboxes
 Requires at least: 3.0
 Tested up to: 3.4.2
-Stable tag: 0.9.7
+Stable tag: 0.9.8
 License: GPLv2 or later
 
 Ultimate Metabox Tabs allows for keeping your post/page and ACF options user friendly for your client with the use of tabs.
@@ -68,6 +68,10 @@ A. Check out api.php and extensions/acf/acf_options_mod.php, If there is more de
 * From 0.9.4 onward, I suggest you delete the 'addons' folder, as it has been renamed to 'extensions' and that is used from now on. It's just a waste of a few kb, it won't harm anything.
 
 == Changelog ==
+
+= 0.9.8 =
+* Added is_admin() check to avoid loading Metabox Tabs if not in admin menu
+* Small UI changes made to accomdate for translated editions of Metabox Tabs.
 
 = 0.9.7 =
 * Added a patching mechanism that edits the core Wordpress files, allow for greater plugin compatibility. (qTranslate is supported with the patch enabled)

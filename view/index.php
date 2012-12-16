@@ -9,9 +9,9 @@ $post_types=get_post_types('','objects');
 	
 	<div class="clearfix"></div>
 	<h2 class="nav-tab-wrapper">
-		<a href="" class="nav-tab nav-tab-active">General</a>
-		<a href="<?php echo add_query_arg('subpage', 'extension' , $this->menu_url); ?>" class="nav-tab">Extensions</a>
-		<a href="<?php echo add_query_arg('subpage', 'patcher' , $this->menu_url); ?>" class="nav-tab">Patches</a>
+		<a href="" class="nav-tab nav-tab-active"><?php echo __('General','umt'); ?></a>
+		<a href="<?php echo add_query_arg('subpage', 'extension' , $this->menu_url); ?>" class="nav-tab"><?php echo __('Extensions','umt'); ?></a>
+		<a href="<?php echo add_query_arg('subpage', 'patcher' , $this->menu_url); ?>" class="nav-tab"><?php echo __('Patches','umt'); ?></a>
 	</h2>
 	
 	<table class="wp-list-table widefat fixed posts" cellspacing="0">

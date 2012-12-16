@@ -83,11 +83,13 @@ class umt_acf_hide_content_patch
 		// globals
 		global $post, $pagenow, $typenow;
 		
+		
 		// shopp
 		if( $pagenow == "admin.php" && isset( $_GET['page'] ) && $_GET['page'] == "shopp-products" && isset( $_GET['id'] ) )
 		{
 			$typenow = "shopp_product";
-		}	
+		}
+		
 		
 		// vars
 		$post_id = 0;
@@ -97,28 +99,28 @@ class umt_acf_hide_content_patch
 			$post_id = $post->ID;
 		}
 		
+			
 		// get style for page
 		$metabox_ids = $this->input->parent->get_input_metabox_ids( array( 'post_id' => $post_id, 'post_type' => $typenow ), false);
 		
 		// patch CSS start
-		$style = isset($metabox_ids[0]) ? $this->input->get_input_style($metabox_ids[0]) : '';
+		$style = isset($metabox_ids[0]) ?  $this->input->get_input_style($metabox_ids[0]) : '';
 		$style = str_replace('#postdivrich {display: none;}',$this->patch_string,$style);
 		// patch CSS end
-		
 		echo '<style type="text/css" id="acf_style" >' .$style . '</style>';
+		
 
 		// Style
-		echo '<link rel="stylesheet" type="text/css" href="' . $this->input->parent->dir . '/css/global.css?ver=' . $this->input->parent->version . '" />';
-		echo '<link rel="stylesheet" type="text/css" href="' . $this->input->parent->dir . '/css/input.css?ver=' . $this->input->parent->version . '" />';
 		echo '<style type="text/css">.acf_postbox, .postbox[id*="acf_"] { display: none; }</style>';
 		
+		
 		// Javascript
-		echo '<script type="text/javascript" src="' . $this->input->parent->dir . '/js/input-actions.js?ver=' . $this->input->parent->version . '" ></script>';
-		echo '<script type="text/javascript" src="' . $this->input->parent->dir . '/js/input-ajax.js?ver=' . $this->input->parent->version . '" ></script>';
-		echo '<script type="text/javascript">acf.post_id = ' . $post_id . ';</script>';
+		echo '<script type="text/javascript">acf.post_id = ' . $post_id . '; acf.nonce = "' . wp_create_nonce( 'acf_nonce' ) . '";</script>';
+		
 		
 		// add user js + css
 		do_action('acf_head-input');
+		
 		
 		// get acf's
 		$acfs = $this->input->parent->get_field_groups();

@@ -3,39 +3,10 @@
 Plugin Name: Ultimate Metabox Tabs
 Plugin URI: none
 Description: Adds extendable metabox tabs to your posts.
-Version: 0.9.7
+Version: 0.9.8
 Author: SilbinaryWolf
 Author URI: none
 License: GPLv2 or later
-*/
-/*
-	Changelog:
-	----------
-	= 0.9.6 =
-	* Fixed a bug with the ACF post list. (Wouldn't show all posts)
-	* Slight interface bug with moving DIV IDs
-	* Changed how custom commands are registered.
-	
-	= 0.9.5 =
-	* Added a select box extension, for easy configuration with ACF.
-	* Added a new extension API command, so that custom metabox selections can be created.
-	
-	= 0.9.4 =
-	* Added extensions API, which will allow for custom settings pages.
-	* Added a patch extension (toggeable) which allows ACF's "Hide Content" option to work.
-	* Allowed the toggling of the ACF Options Page metatabs, in case of users not wanting them there or future ACF update breaks.
-
-	= 0.9.3 =
-	* Fixed a bug in the umt-post.js that caused saving to work oddly.
-	
-	= 0.9.2 =
-	* Fixed a bug in the javascript that stopped Firefox from working.
-	
-	= 0.9.1 = 
-	* Fixed invalid script/style hooks in ACF Options Page.
-	
-	= 0.9.0 =
-	* Internal Beta release.
 */
 /*
 	Control+F "#POTBUG" to find potential Metabox Tab Breaking code
@@ -61,6 +32,7 @@ class UltimateMetaboxTabs
 		$menu_parent,
 		$menu_slug,
 		$menu_url,
+		$current_tab,
 		$extensions,
 		$patches,
 		$settings_pages,
@@ -83,51 +55,64 @@ class UltimateMetaboxTabs
 	*-------------------------------------------------------------------------------------*/
 	function __construct()
 	{
-		// vars
-		$this->dir = plugin_dir_path(__FILE__);
-		$this->url = plugins_url('',__FILE__);
-		$this->developer_email = "doogie1012@gmail.com";
-		$this->version = '0.9.7';
-		
-		// Database Settings
-		$this->option_autoload = true;
-		$this->extension_database_prefix = "sw_extension_metatab_";
-		$this->post_database_prefix = "sw_post_metatab_";
-		$this->option_database_prefix = "sw_option_metatab";
-		$this->settings_database_prefix = "sw_";
-		$this->settings_database_suffix = "_metatab";
-		
-		// Menu Settings
-		$this->menu_parent = 'options-general.php';
-		$this->menu_slug = 'metabox-tabs';
-		$this->css_enable_class = 'umt_enabled';
-		
-		// URL Setting
-		$this->menu_url = admin_url($this->menu_parent.'?page='.$this->menu_slug);
-		
-		// The array where the metabox tabs are loaded into.
-		$this->metatab_info = array();
-		
-		// These arrays store extensions and pages registered to give the plugin extra functionalitys
-		$this->extensions = array();
-		$this->patches = array();
-		$this->settings_pages = array();
-		
-		$this->using_top_page_hook = false;
-		
-		$this->div_options = array();
-		$this->special_command_div_options = array();
-		
-		// Whether the metabox tabs have been loaded and/or created.
-		$this->metatabs_post_loaded = false;
-		$this->metatabs_options_loaded = false;
-		$this->metatab_custom_settings_loaded = array();
-		$this->metatabs_created = false;
-		
-		//
-		
-		// setup hooks
-		add_action("init",array($this,"init"),0);
+		if (is_admin())
+		{
+			// vars
+			$this->dir = plugin_dir_path(__FILE__);
+			$this->url = plugins_url('',__FILE__);
+			$this->developer_email = "doogie1012@gmail.com";
+			$this->version = '0.9.8';
+			
+			// Database Settings
+			$this->option_autoload = true;
+			$this->extension_database_prefix = "sw_extension_metatab_";
+			$this->post_database_prefix = "sw_post_metatab_";
+			$this->option_database_prefix = "sw_option_metatab";
+			$this->settings_database_prefix = "sw_";
+			$this->settings_database_suffix = "_metatab";
+			
+			// Menu Settings
+			$this->menu_parent = 'options-general.php';
+			$this->menu_slug = 'metabox-tabs';
+			$this->css_enable_class = 'umt_enabled';
+			
+			// URL Setting
+			$this->menu_url = admin_url($this->menu_parent.'?page='.$this->menu_slug);
+			
+			// Current UMT Tab selected (for no-js support)
+			if (isset($_GET['umt_tab']) && is_numeric($_GET['umt_tab']))
+			{
+				$this->current_tab = $_GET['umt_tab'];
+			}
+			else
+			{
+				$this->current_tab = 0;
+			}
+			
+			// The array where the metabox tabs are loaded into.
+			$this->metatab_info = array();
+			
+			// These arrays store extensions and pages registered to give the plugin extra functionalitys
+			$this->extensions = array();
+			$this->patches = array();
+			$this->settings_pages = array();
+			
+			$this->using_top_page_hook = false;
+			
+			$this->div_options = array();
+			$this->special_command_div_options = array();
+			
+			// Whether the metabox tabs have been loaded and/or created.
+			$this->metatabs_post_loaded = false;
+			$this->metatabs_options_loaded = false;
+			$this->metatab_custom_settings_loaded = array();
+			$this->metatabs_created = false;
+			
+			//
+			
+			// setup hooks
+			add_action("init",array($this,"init"),0);
+		}
 	}
 	
 	/*--------------------------------------------------------------------------------------
@@ -485,10 +470,15 @@ class UltimateMetaboxTabs
 			if (count($this->metatab_info)>0)
 			{
 				$ref = $this->metatab_info;
-				$first_metatab = reset($ref);
+				$this_metatab = reset($ref);
+				// check if tab is set (for no-javascript support)
+				for ($i = 0; $i < $this->current_tab; ++$i)
+				{
+					$this_metatab = next($ref);
+				}
 				if (count($this->metatab_info)>1)
 				{
-					$classes .= " umt_group_" . $first_metatab['id'] . "_class " . $this->css_enable_class;
+					$classes .= " umt_group_" . $this_metatab['id'] . "_class " . $this->css_enable_class;
 					if ($this->using_top_page_hook > 0)
 					{
 						$classes .= " umt_no_margin";
@@ -496,7 +486,7 @@ class UltimateMetaboxTabs
 				}
 				else
 				{
-					$classes .= " umt_group_" . $first_metatab['id'] . "_class";
+					$classes .= " umt_group_" . $this_metatab['id'] . "_class";
 				}
 			}
 		}
@@ -1027,9 +1017,10 @@ class UltimateMetaboxTabs
 			<ul id="sw-ultimate-metabox-tab-list" class="metabox-tabs" style="z-index:99;">
 				<?php $i = 0; ?>
 				<?php foreach ($metatab_list as $metatab):?>
-				<?php $class = ($i == 0) ? 'class="active"' : ''; ?>
+				<?php $class = ($i == $this->current_tab) ? 'class="active"' : ''; ?>
+				<?php $url = add_query_arg('umt_tab', $i); ?>
 				<li id="<?php echo $metatab['id']; ?>">
-					<a href="#" <?php echo $class; ?>><?php echo $metatab['name']; ?></a>
+					<a href="<?php echo $url; ?>" <?php echo $class; ?>><?php echo $metatab['name']; ?></a>
 				</li>
 				<?php $i++; endforeach; ?>
 			</ul>

@@ -52,6 +52,7 @@
 
 #metabox-editor .submit-button {
 	display: block;
+	width:auto;
 	border-radius: 4px;
 	background: #2C8BBE;
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#2c8bbe', endColorstr='#246f99');
@@ -142,7 +143,7 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#3b97c9', endC
 }
 
 #metabox-editor  input.group_name_input {
-	width:50%;
+	width:75%;
 }
 
 .table_footer {

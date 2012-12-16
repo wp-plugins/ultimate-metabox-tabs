@@ -2,7 +2,7 @@
 	if (isset($_REQUEST['options']))
 	{
 		$post_info = array();
-		$post_name = "Global Options";
+		$post_name = __('Global Options','umt');
 	}
 	else if (isset($_REQUEST['settings']))
 	{
@@ -39,7 +39,7 @@
 							<input type="text" name="umt_div[<?php echo $group['id']; ?>][<?php echo $div['id']; ?>]" size="30" tabindex="1" value="<?php echo $div['name']; ?>" class="metabox-divid" autocomplete="off">
 							<?php if (count($div_options)>0): ?>
 							<select class="post_divselect" selected="<?php echo $div['name']; ?>">
-								<option name="none" value="">- None -</option>
+								<option name="none" value="">- <?php echo __('None'); ?> -</option>
 								<?php foreach ($div_options as $optiongroup): ?>
 								<optgroup label="<?php echo $optiongroup['name']; ?>">
 									<?php foreach ($optiongroup['div'] as $optiondiv): ?>
@@ -91,12 +91,12 @@
 					</td>
 					<td class="div_name">
 						<div class="td_content">
-							Div ID
+							<?php echo __('Div ID','umt'); ?>
 						</div>
 					</div>
 					<td class="div_remove">
 						<div class="td_content">
-							Delete
+							<?php echo __('Delete'); ?>
 						</div>
 					</td>
 				</tr>
@@ -147,6 +147,13 @@
 		</p>
 	</div>
 	<?php endif; ?>
+	<noscript>
+		<div id="message" class="updated below-h2">
+			<p>
+				<?php echo __('Javascript must be enabled to modify the Ultimate Metabox Tabs settings.','umt'); ?>
+			</p>
+		</div>
+	</noscript>
 	<div id="meta-data" style="display:none;">
 		<div id="meta-newdiv">
 			<?php umt_div($this,array('name' => '', 'id' => uniqid()),array('id' => uniqid()),$this->div_options); ?>
