@@ -6,6 +6,6 @@
 	<div class="clearfix"></div>
 	<div class="extension-list">
 	<h3>Extension '<?php echo $slug; ?>' is now <?php echo $enable ? 'enabled' : 'disabled'; ?>.</h3>
-	<a href="<?php echo $this->menu_url; ?>"><< <?php echo __('Go Back'); ?></a>
+	<a href="<?php echo add_query_arg('subpage', 'extension', $this->menu_url); ?>"><< <?php echo __('Go Back'); ?></a>
 	</div>
 </div>

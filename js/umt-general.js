@@ -1,5 +1,5 @@
 (function($){
-$(window).load(function() {
+$(document).ready(function(){ 
 	$('#sw-ultimate-metabox-tab-list li a').click(function(event){
 		event.preventDefault ? event.preventDefault() : event.returnValue = false;
 		var groupID = $(this).parent().attr('id');

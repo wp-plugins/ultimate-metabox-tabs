@@ -8,6 +8,9 @@
 * 
 *-------------------------------------------------------------------------*/
  
+if (class_exists('acf_options_page'))
+{
+ 
 class umt_acf_options_page extends acf_options_page 
 {
 	var $umt;
@@ -87,5 +90,5 @@ class umt_acf_options_page extends acf_options_page
 		$this->umt->metatab_create();
 	}
 }
-
+}
 ?>

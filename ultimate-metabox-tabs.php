@@ -3,7 +3,7 @@
 Plugin Name: Ultimate Metabox Tabs
 Plugin URI: none
 Description: Adds extendable metabox tabs to your posts.
-Version: 0.9.8
+Version: 0.9.9
 Author: SilbinaryWolf
 Author URI: none
 License: GPLv2 or later
@@ -61,7 +61,10 @@ class UltimateMetaboxTabs
 			$this->dir = plugin_dir_path(__FILE__);
 			$this->url = plugins_url('',__FILE__);
 			$this->developer_email = "doogie1012@gmail.com";
-			$this->version = '0.9.8';
+			$this->version = '0.9.9';
+			
+			// Global vars
+			$this->post_type = NULL;
 			
 			// Database Settings
 			$this->option_autoload = true;
@@ -131,15 +134,15 @@ class UltimateMetaboxTabs
 		// setup post/page hooks
 		add_action('admin_head-post.php', array($this, 'admin_head'));
 		add_action('admin_print_styles-post.php', array($this, 'admin_print_styles'));
-		add_action('admin_print_scripts-post.php', array($this, 'admin_print_scripts'));
+		//add_action('admin_print_scripts-post.php', array($this, 'admin_print_scripts'));
 		
 		add_action('admin_head-post-new.php', array($this, 'admin_head'));
 		add_action('admin_print_styles-post-new.php', array($this, 'admin_print_styles'));
-		add_action('admin_print_scripts-post-new.php', array($this, 'admin_print_scripts'));
+		//add_action('admin_print_scripts-post-new.php', array($this, 'admin_print_scripts'));
 		
 		// setup edit ui hooks
-		add_action('admin_print_scripts-settings_page_' . $this->menu_slug, array($this, 'admin_menu_print_scripts'));
 		add_action('admin_print_styles-settings_page_' . $this->menu_slug, array($this, 'admin_menu_print_styles'));
+		add_action('admin_print_scripts-settings_page_' . $this->menu_slug, array($this, 'admin_menu_print_scripts'));
 		
 		// add metabox tabs to the admin menu
 		add_action('admin_menu', array($this,'admin_menu'));
@@ -176,13 +179,16 @@ class UltimateMetaboxTabs
 		global $acf;
 		if (isset($acf))
 		{
-			$acf_addon_dir = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'extensions' . DIRECTORY_SEPARATOR . 'acf' . DIRECTORY_SEPARATOR;
+			$acf_addon_dir = $addon_dir . 'acf' . DIRECTORY_SEPARATOR;
 			// Add ACF Options Support
-			$this->add_extension(	"acf-options", 
-									__("ACF Options","umt"), 
-									__("Overrides the ACF Options page class and gives it Metabox Tabs.","umt"),
-									"umt_acf_options_page",
-									$acf_addon_dir . 'options_page_mod.php');
+			if (class_exists('acf_options_page'))
+			{
+				$this->add_extension(	"acf-options", 
+										__("ACF Options","umt"), 
+										__("Overrides the ACF Options page class and gives it Metabox Tabs.","umt"),
+										"umt_acf_options_page",
+										$acf_addon_dir . 'options_page_mod.php');
+			}
 									
 			// Add ACF Post List Support
 			$this->add_extension(	"acf-post-list", 
@@ -199,6 +205,16 @@ class UltimateMetaboxTabs
 									$acf_addon_dir . 'hide_content_patch.php');
 		}
 		
+		if (defined('SHOPP_VERSION'))
+		{
+			$this->add_extension(	"shopp-support", 
+										__("Shopp Support","umt"), 
+										__("Adds Shopp support. Fixes UMT so that metaboxes work properly on the Products page.","umt"),
+										"umt_shopp_support",
+										$addon_dir . 'shopp.php');
+		}
+		
+	
 		// 
 		/*$this->add_extension(	"admin-hook-patch", 
 								__("Admin Hook Patch","umt"), 
@@ -286,7 +302,7 @@ class UltimateMetaboxTabs
 					else
 					{
 						trigger_error("Invalid Ultimate Metabox Tabs extension, class does not exist.");
-						$this->extensions[$slug]['description'] = "- Invalid Ultimate Metabox Tabs extension, class does not exist. -" . $this->extensions[$slug]['description'];
+						$this->extensions[$slug]['description'] = "- Invalid Ultimate Metabox Tabs extension, class does not exist. -<br/>" . $this->extensions[$slug]['description'];
 						// Disable Extension
 						$enabled = false;
 						$this->extensions[$slug]['enabled'] = $enabled;
@@ -432,10 +448,15 @@ class UltimateMetaboxTabs
 	*-------------------------------------------------------------------------------------*/
 	function admin_head()
 	{
-		if ($this->metatab_load())
+		if ($this->metatab_load($this->post_type))
 		{
 			$output = "";
 			$i = 0;
+			?>
+			<script type="text/javascript">
+			(function($){$(document).ready(function(){$("#sw-ultimate-metabox-tab-list li a").click(function(event){event.preventDefault?event.preventDefault():event.returnValue=false;var groupID=$(this).parent().attr("id");var classes=$("body").attr("class").split(" ");for(i=0;i<classes.length;i++){if(classes[i].substr(0,10)=="umt_group_"){classes.splice(i,1)}}$("body").attr("class",classes.join(" ")).addClass("umt_group_"+groupID+"_class");$("#sw-ultimate-metabox-tab-list li a").removeClass("active");$(this).addClass("active");return false})})})(jQuery);
+			</script>
+			<?php
 			echo '<style type="text/css" id="umt_style">';
 			foreach($this->metatab_info as $metatab)
 			{
@@ -456,7 +477,7 @@ class UltimateMetaboxTabs
 	*-------------------------------------------------------------------------------------*/
 	function admin_body_class($classes)
 	{
-		if ($this->metatab_load())
+		if ($this->metatab_load($this->post_type))
 		{
 			// Validate the tabs, if they cant be found don't add styling.
 			if ($this->metatab_validate() == false)
@@ -538,7 +559,7 @@ class UltimateMetaboxTabs
 		// If there is output, add the necessary styling.
 		if ($inactive_output != "")
 		{
-			$inactive_output .= " { position:absolute; left:-6000px; height:0px; opacity:0; } \n";
+			$inactive_output .= " { left:-6000px; height:0px; margin:0; padding:0; opacity:0; } \n";
 		}
 		
 		// Custom DIV Commands Hooks
@@ -577,7 +598,7 @@ class UltimateMetaboxTabs
 		// If there is output, add the necessary styling.
 		if ($active_output != "")
 		{
-			$active_output .= " { position:inherit; left:inherit; height:inherit; opacity:inherit; } \n";
+			$active_output .= " { position:inherit; left:inherit; height:inherit; padding:inherit; margin:0 0 20px 0; opacity:inherit; } \n";
 		}
 		
 		// Custom DIV Commands Hooks
@@ -613,12 +634,14 @@ class UltimateMetaboxTabs
 	
 	function admin_print_scripts()
 	{
-		if ($this->metatab_load())
+		// Changed to inline javascript loading
+		
+		/*if ($this->metatab_load($this->post_type))
 		{
 			wp_enqueue_script('jquery');
 			wp_register_script('ultimate-metabox-tabs-script',$this->url . '/js/umt-general.js');
 			wp_enqueue_script('ultimate-metabox-tabs-script');
-		}	
+		}*/
 	}
 	
 	/*--------------------------------------------------------------------------------------
@@ -632,6 +655,10 @@ class UltimateMetaboxTabs
 	function admin_menu_print_styles()
 	{
 		do_action('umt_admin_menu_print_styles');
+		if (isset($_GET['posttype']))
+		{
+			do_action('umt_admin_menu_print_styles-' . $_GET['posttype']);
+		}
 		
 		wp_register_style('ultimate-metabox-tabs-editor-css',$this->url . '/css/umt-editor.css');
 		wp_enqueue_style('ultimate-metabox-tabs-editor-css');
@@ -648,6 +675,10 @@ class UltimateMetaboxTabs
 	function admin_menu_print_scripts()
 	{
 		do_action('umt_admin_menu_print_scripts');
+		if (isset($_GET['posttype']))
+		{
+			do_action('umt_admin_menu_print_scripts-' . $_GET['posttype']);
+		}
 		
 		wp_enqueue_script('jquery');
 		wp_enqueue_script('jquery-ui-core');
@@ -753,11 +784,14 @@ class UltimateMetaboxTabs
 	*	metatab_load
 	* 	loads the relevant metabox tab information for the post type
 	*
+	*	posttype_slug - Allows you to load the specified post type instead of getting the current
+	*					post type.
+	*
 	*	@author SilbinaryWolf
 	*	@since 1.0.0
 	* 
 	*-------------------------------------------------------------------------------------*/
-	function metatab_load()
+	function metatab_load($posttype_slug = NULL)
 	{
 		if ($this->metatabs_options_loaded != true)
 		{
@@ -795,11 +829,11 @@ class UltimateMetaboxTabs
 		if ($this->metatabs_post_loaded != true)
 		{
 			// Don't attempt to load if there is no post type
-			if (get_post_type() !== '')
+			if (get_post_type() !== '' || $posttype_slug != NULL)
 			{
 				// Setup defaults
 				$this->metatabs_post_loaded = true;
-				$this->post_type = get_post_type();
+				$this->post_type = $posttype_slug == NULL ? get_post_type() : $posttype_slug;
 				$option_name = $this->post_database_prefix . $this->post_type;
 				
 				// Load the metatab information
@@ -850,10 +884,8 @@ class UltimateMetaboxTabs
 	*-------------------------------------------------------------------------------------*/
 	function metatab_validate()
 	{
-		/*
-			Validate the metabox tabs by checking to see if the metaboxes
-			exist.
-		*/
+		// Validate the metabox tabs by checking to see if the metaboxes
+		// exist.
 		global $wp_meta_boxes;
 		$the_wp_meta_boxes = -1;
 		// Get the current screen
@@ -861,6 +893,7 @@ class UltimateMetaboxTabs
 		if (isset($wp_meta_boxes[$screen]))
 		{
 			$the_wp_meta_boxes = array();
+			// Get the metaboxes from the current screen
 			if (isset($wp_meta_boxes[$screen]['normal']['core']))
 			{
 				$the_wp_meta_boxes = $wp_meta_boxes[$screen]['normal']['core'];
@@ -869,7 +902,6 @@ class UltimateMetaboxTabs
 			{
 				$the_wp_meta_boxes = array_merge($the_wp_meta_boxes,$wp_meta_boxes[$screen]['normal']['high']);
 			}
-			
 			if (isset($wp_meta_boxes[$screen]['side']))
 			{
 				if (isset($wp_meta_boxes[$screen]['side']))
@@ -879,6 +911,12 @@ class UltimateMetaboxTabs
 						$the_wp_meta_boxes = array_merge($the_wp_meta_boxes,$wp_meta_boxes[$screen]['side']['high']);
 					}
 				}
+			}
+			// If more screens need to be checked, allow developers to run a filter
+			// NOTE: Refer to shopp.php in extensions for example usage.
+			if (has_filter("umt_filter_metabox_screen"))
+			{
+				$the_wp_meta_boxes = apply_filters("umt_filter_metabox_screen",$the_wp_meta_boxes);
 			}
 		}
 		else
@@ -912,6 +950,12 @@ class UltimateMetaboxTabs
 						{
 							$the_wp_meta_boxes = array_merge($the_wp_meta_boxes,$wp_meta_boxes[$screen]['side']['high']);
 						}
+					}
+					// If more screens need to be checked, allow developers to run a filter
+					// NOTE: Refer to shopp.php in extensions for example usage.
+					if (has_filter("umt_filter_metabox_screen"))
+					{
+						$the_wp_meta_boxes = apply_filters("umt_filter_metabox_screen",$the_wp_meta_boxes);
 					}
 				}
 			}
@@ -1020,7 +1064,7 @@ class UltimateMetaboxTabs
 				<?php $class = ($i == $this->current_tab) ? 'class="active"' : ''; ?>
 				<?php $url = add_query_arg('umt_tab', $i); ?>
 				<li id="<?php echo $metatab['id']; ?>">
-					<a href="<?php echo $url; ?>" <?php echo $class; ?>><?php echo $metatab['name']; ?></a>
+					<a href="#" <?php echo $class; ?>><?php echo $metatab['name']; ?></a>
 				</li>
 				<?php $i++; endforeach; ?>
 			</ul>
